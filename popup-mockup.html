@@ -41,7 +41,8 @@ legend { margin-bottom: 5px; font-weight: 650; }
 .saved-controls button { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; }
 .saved-controls [data-action="apply"] { width: auto; padding: 0 10px; font-weight: 650; white-space: nowrap; }
 .actions { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; }
-.apply-check { width: 14px; text-align: center; color: #217849; font-weight: 750; visibility: hidden; }
+.save-status { color: #216743; font-weight: 700; }
+.apply-check { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #217849; color: white; font-size: 16px; font-weight: 800; visibility: hidden; }
 .apply-check.is-visible { visibility: visible; }
 .saved-conditions { margin-top: 14px; }
 .saved-conditions h3 { margin: 0 0 4px; font-size: 14px; }
@@ -58,19 +59,18 @@ header h1, header .tab { margin-right: 46px; }
 .options-panel { margin-top: 12px; padding: 12px; border: 1px solid #8093b2; border-radius: 9px; }
 .options-panel label { display: block; }
 .options-panel select { display: block; width: 100%; margin: 4px 0 8px; }
-[data-theme="dark"] { color-scheme: dark; }
-[data-theme="dark"] body { background: #101827; color: #e5ecf9; }
-[data-theme="dark"] .panel { background: #192438; border-color: #445371; }
+.panel[data-theme="dark"] { color-scheme: dark; background: #192438; color: #e5ecf9; border-color: #445371; }
 [data-theme="dark"] header { background: #111c30; }
 [data-theme="dark"] section + section, [data-theme="dark"] .choice { border-color: #445371; }
-[data-theme="dark"] .muted, [data-theme="dark"] .caption, [data-theme="dark"] .volume-scale,
+[data-theme="dark"] .muted, [data-theme="dark"] .volume-scale,
 [data-theme="dark"] .choice small, [data-theme="dark"] .choice:has(input:disabled) { color: #b6c5df; }
 [data-theme="dark"] output { color: #a9c6ff; }
 [data-theme="dark"] .saved,
 [data-theme="dark"] button, [data-theme="dark"] select { background: #24344f; color: #e5ecf9; border-color: #647796; }
 [data-theme="dark"] .choice:has(input:checked) { background: #263f65; border-color: #88a9e7; }
 [data-theme="dark"] button.primary { background: #a9c6ff; color: #122341; border-color: #a9c6ff; }
-[data-theme="dark"] .apply-check { color: #88e3b0; }
+[data-theme="dark"] .save-status { color: #88e3b0; }
+[data-theme="dark"] .apply-check { background: #88e3b0; color: #102c22; }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -80,7 +80,7 @@ header h1, header .tab { margin-right: 46px; }
     <span>拡張ポップアップの画面イメージ</span>
     <label>サンプル <select id="sample"><option value="youtube">YouTube</option><option value="nico">ニコニコ動画</option></select></label>
   </div>
-  <article class="panel">
+  <article class="panel" id="popup">
     <header>
       <h1>tab-volume</h1>
       <p class="tab" id="address"></p>
@@ -124,7 +124,7 @@ header h1, header .tab { margin-right: 46px; }
       </fieldset>
       <div class="actions">
         <button class="primary" id="save" type="button">この条件で保存</button>
-        <span class="muted" id="save-status" role="status"></span>
+        <span class="save-status" id="save-status" role="status"></span>
       </div>
       <div class="saved-conditions">
         <h3>保存されている条件</h3>
@@ -161,7 +161,7 @@ const darkMode = find('dark-mode');
 let url;
 
 function renderOptions() {
-  document.documentElement.dataset.theme = darkMode.checked ? 'dark' : 'light';
+  find('popup').dataset.theme = darkMode.checked ? 'dark' : 'light';
   renderScale();
 }
 
@@ -252,7 +252,7 @@ function renderSaved() {
       render();
       check.classList.add('is-visible');
       clearTimeout(checkTimer);
-      checkTimer = setTimeout(() => check.classList.remove('is-visible'), 1000);
+      checkTimer = setTimeout(() => check.classList.remove('is-visible'), 2000);
     });
     const remove = row.querySelector('[data-action="delete"]');
     remove.setAttribute('aria-label', condition + ' の保存条件を削除');
