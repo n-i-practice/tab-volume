@@ -103,6 +103,8 @@ header h1, header .tab { margin-right: 46px; }
   </div>
   <p class="caption"><label>状態のプレビュー <select id="capture-example">
     <option value="ready">通常</option><option value="starting">開始中</option><option value="failed">適用失敗</option><option value="conflict">キャプチャ競合</option>
+    <option value="access-lost-active">URL 権限なし（キャプチャ中）</option>
+    <option value="access-lost-idle">URL 権限なし（未調整）</option>
   </select></label></p>
   <article class="panel" id="popup">
     <header>
@@ -133,7 +135,7 @@ header h1, header .tab { margin-right: 46px; }
       </fieldset>
       <div class="volume-actions">
         <button id="reset" type="button">100% に戻す</button>
-        <button id="mute" class="mute-button" type="button" aria-label="ミュート" aria-pressed="false">
+        <button id="mute" class="mute-button" type="button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 9h4l5-4v14l-5-4H3z"/>
             <path class="speaker-on" d="M16 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/>
@@ -204,14 +206,16 @@ header h1, header .tab { margin-right: 46px; }
 const samples = {
   youtube: 'https://www.youtube.com/watch?v=ABC123&t=30',
   nico: 'https://www.nicovideo.jp/watch/sm46647529',
-  restricted: 'chrome://settings/',
-  webstore: 'https://chromewebstore.google.com/'
+  restricted: null,
+  webstore: null
 };
 const captureMessages = {
   unsupported: 'このページでは音量調整を利用できません。',
   starting: '音声キャプチャを開始しています…',
-  failed: '音量を適用できませんでした。もう一度お試しください。',
-  conflict: 'このタブは別のキャプチャで使用中です。共有や録画を終了してから再試行してください。'
+  failed: '音量を適用できませんでした。再試行するか、音量を選び直してください。',
+  conflict: 'このタブは別のキャプチャで使用中です。共有や録画を終了してから再試行してください。',
+  'access-lost-active': 'ページが変わりました。保存設定を使うにはポップアップを開き直してください。',
+  'access-lost-idle': 'ページが変わりました。音量を調整するにはポップアップを開き直してください。'
 };
 const find = id => document.getElementById(id);
 const recordPrefix = 'tab-volume-mock-rule:';
@@ -227,6 +231,7 @@ let url;
 let muted = false;
 let captureState = 'ready';
 let retryTimer;
+let announcementTimer;
 
 function renderOptions() {
   find('popup').dataset.theme = darkMode.checked ? 'dark' : 'light';
@@ -273,7 +278,7 @@ function renderScale() {
       label.setAttribute('aria-label', '音量を ' + value + '% にする');
       label.addEventListener('click', () => {
         volume.value = value;
-        render();
+        changeVolume();
       });
       tick.append(label);
     }
@@ -289,44 +294,44 @@ function ruleLabel(rule) {
 }
 
 function captureBlocked() {
-  return captureState === 'unsupported' || captureState === 'failed' || captureState === 'conflict';
+  return ['unsupported', 'conflict', 'access-lost-idle'].includes(captureState);
 }
 
 function renderCaptureState() {
-  const isWebStore = url.hostname === 'chromewebstore.google.com' ||
-    (url.hostname === 'chrome.google.com' && /^\/webstore(?:\/|$)/.test(url.pathname));
-  captureState = ['http:', 'https:'].includes(url.protocol) && !isWebStore ? captureExample.value : 'unsupported';
-  const supported = captureState !== 'unsupported';
-  find('saved-title').parentElement.hidden = !supported;
-  find('save-area').hidden = !supported;
+  captureState = url ? captureExample.value : 'unsupported';
+  const showPageSettings = url && !captureState.startsWith('access-lost-');
+  find('address').textContent = showPageSettings ? url.href : '';
+  find('saved-title').parentElement.hidden = !showPageSettings;
+  find('save-area').hidden = !showPageSettings;
   find('capture-notice').hidden = captureState === 'ready';
   find('capture-message').textContent = captureMessages[captureState] ?? '';
   find('retry').hidden = captureState !== 'failed' && captureState !== 'conflict';
   find('reset').disabled = captureBlocked();
   mute.disabled = captureBlocked();
   render();
-  renderSaved();
+  if (showPageSettings) renderSaved();
 }
 
 function render() {
   const scope = document.querySelector('input[name="scope"]:checked').value;
   const params = Array.from(queryItems.querySelectorAll('input:checked'), input => [
-    input.value, url.searchParams.get(input.value)
+    input.value, url?.searchParams.get(input.value)
   ]).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);
-  const rule = { scope, host: url.hostname, path: scope === 'host' ? '' : url.pathname, params: scope === 'query' ? params : [] };
+  const rule = { scope, host: url?.hostname, path: scope === 'host' ? '' : url?.pathname, params: scope === 'query' ? params : [] };
   const valid = scope !== 'query' || params.length > 0;
   find('queries').hidden = scope !== 'query';
   find('save').disabled = !valid || captureState !== 'ready';
   find('volume-slider').disabled = muted || captureBlocked();
-  find('amount').value = captureState === 'unsupported' ? '—' : volume.value + '%';
+  const showVolume = captureState !== 'unsupported' && captureState !== 'access-lost-idle';
+  find('amount').value = showVolume ? volume.value + '%' : '—';
   volume.setAttribute('aria-valuetext', volume.value + '%');
   const currentVolume = Number(volume.value);
-  find('boost-note').hidden = captureState === 'unsupported' || currentVolume <= 100;
+  find('boost-note').hidden = !showVolume || currentVolume <= 100;
   return rule;
 }
 
 function matchesPage(item) {
-  return item.host === url.hostname && (!item.path || item.path === url.pathname) &&
+  return url && item.host === url.hostname && (!item.path || item.path === url.pathname) &&
     item.params.every(([name, value]) => {
       const values = url.searchParams.getAll(name);
       return values.length === 1 && values[0] === value;
@@ -371,7 +376,12 @@ function renderSaved() {
     apply.addEventListener('click', () => {
       volume.value = item.volume;
       render();
-      find('apply-announcement').textContent = '音量を ' + item.volume + '% に適用しました';
+      const announcement = find('apply-announcement');
+      clearTimeout(announcementTimer);
+      announcement.textContent = '';
+      announcementTimer = setTimeout(() => {
+        announcement.textContent = '音量を ' + item.volume + '% に適用しました';
+      }, 100);
       check.classList.add('is-visible');
       clearTimeout(checkTimer);
       checkTimer = setTimeout(() => check.classList.remove('is-visible'), 2000);
@@ -392,13 +402,13 @@ function renderSaved() {
 }
 
 function loadSample() {
-  url = new URL(samples[find('sample').value]);
-  find('address').textContent = url.href;
-  find('host-detail').textContent = url.hostname;
-  find('path-detail').textContent = url.hostname + url.pathname;
+  const sampleUrl = samples[find('sample').value];
+  url = sampleUrl ? new URL(sampleUrl) : null;
+  find('host-detail').textContent = url?.hostname ?? '';
+  find('path-detail').textContent = url ? url.hostname + url.pathname : '';
   document.querySelector('[value="host"]').checked = true;
   queryItems.replaceChildren();
-  for (const name of new Set(url.searchParams.keys())) {
+  for (const name of new Set(url?.searchParams.keys())) {
     const values = url.searchParams.getAll(name);
     const label = document.createElement('label');
     label.className = 'query-item';
@@ -412,6 +422,7 @@ function loadSample() {
   const hasChoices = Boolean(queryItems.querySelector('input:not(:disabled)'));
   document.querySelector('[value="query"]').disabled = !hasChoices;
   find('query-detail').textContent = hasChoices ? '選んだ名前と値がすべて一致する場合に適用可能' : '選べるクエリパラメータがありません';
+  clearTimeout(announcementTimer);
   find('apply-announcement').textContent = '';
   find('save-area').open = false;
   renderCaptureState();
@@ -425,26 +436,38 @@ captureExample.addEventListener('change', () => {
   clearTimeout(retryTimer);
   renderCaptureState();
 });
-find('retry').addEventListener('click', () => {
+function startRetry() {
   captureExample.value = 'starting';
   renderCaptureState();
   retryTimer = setTimeout(() => {
     captureExample.value = 'ready';
     renderCaptureState();
   }, 700);
-});
+}
+find('retry').addEventListener('click', startRetry);
 tickPattern.addEventListener('change', updateOptions);
 darkMode.addEventListener('change', updateOptions);
 document.querySelectorAll('input[name="scope"]').forEach(input => input.addEventListener('change', render));
 queryItems.addEventListener('change', render);
-volume.addEventListener('input', render);
-find('reset').addEventListener('click', () => { volume.value = 100; render(); });
+function changeVolume() {
+  if (captureState === 'failed') {
+    if (Number(volume.value) !== 100 || muted) {
+      startRetry();
+      return;
+    }
+    captureExample.value = 'ready';
+    renderCaptureState();
+    return;
+  }
+  render();
+}
+volume.addEventListener('input', changeVolume);
+find('reset').addEventListener('click', () => { volume.value = 100; changeVolume(); });
 mute.addEventListener('click', () => {
   muted = !muted;
   mute.classList.toggle('is-muted', muted);
-  mute.setAttribute('aria-pressed', String(muted));
   find('mute-label').textContent = muted ? 'ミュート解除' : 'ミュート';
-  render();
+  changeVolume();
 });
 let saveTimer;
 const saveStatus = find('save-status');
