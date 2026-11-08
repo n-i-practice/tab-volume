@@ -10,9 +10,14 @@ header { position: relative; background: #152643; color: white; }
 h1, h2, p { margin: 0; }
 h1 { font-size: 20px; }
 h2 { font-size: 16px; }
-#popup > section, #save-area { border-top: 1px solid #e2e8f2; }
+#popup > section, #save-area, .popup-footer { border-top: 1px solid #e2e8f2; }
 #save-area summary { padding: 12px 20px; font-weight: 700; cursor: pointer; }
 #save-area section { padding-top: 0; }
+.popup-footer { display: flex; justify-content: flex-end; padding: 12px 20px; }
+.support-link { display: block; border-radius: 6px; }
+.support-link img { display: block; width: auto; height: 36px; }
+.support-link:hover { opacity: .85; }
+.support-link:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
 .tab { color: #c8d7ed; font-size: 12px; overflow-wrap: anywhere; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 input[type=range] { display: block; width: 100%; margin: 12px 0 4px; accent-color: #255ac5; }
@@ -74,7 +79,8 @@ header h1, header .tab { margin-right: 46px; }
 .save-status.is-error { color: #9b3030; }
 .panel[data-theme="dark"] { color-scheme: dark; background: #192438; color: #e5ecf9; border-color: #445371; }
 [data-theme="dark"] header { background: #111c30; }
-#popup[data-theme="dark"] > section, [data-theme="dark"] #save-area, [data-theme="dark"] .choice { border-color: #445371; }
+#popup[data-theme="dark"] > section, [data-theme="dark"] #save-area, [data-theme="dark"] .popup-footer, [data-theme="dark"] .choice { border-color: #445371; }
+[data-theme="dark"] .support-link:focus-visible { outline-color: #a9c6ff; }
 [data-theme="dark"] .muted, [data-theme="dark"] .volume-scale,
 [data-theme="dark"] .choice small, [data-theme="dark"] .choice:has(input:disabled) { color: #b6c5df; }
 [data-theme="dark"] output { color: #a9c6ff; }

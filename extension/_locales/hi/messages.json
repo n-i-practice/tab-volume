@@ -14,6 +14,9 @@
   "options": {
     "message": "विकल्प"
   },
+  "support_on_kofi": {
+    "message": "Ko-fi पर डेवलपमेंट में सहयोग करें (नए टैब में खुलेगा)"
+  },
   "language": {
     "message": "प्रदर्शन की भाषा"
   },
