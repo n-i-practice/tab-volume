@@ -25,6 +25,7 @@ input[type=range] { display: block; width: 100%; margin: 12px 0 4px; accent-colo
 .volume-scale .minor-tick::before { height: 4px; }
 .volume-scale button { display: block; padding: 0; border: 0; border-radius: 2px; background: transparent; color: inherit; line-height: 1.3; }
 .volume-scale button:hover { text-decoration: underline; }
+.volume-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 input[type=radio], input[type=checkbox] { accent-color: #255ac5; }
 output { color: #1948a1; font-weight: 750; font-size: 23px; font-variant-numeric: tabular-nums; }
 .muted { color: #4f5d75; font-size: 12px; }
@@ -112,7 +113,10 @@ header h1, header .tab { margin-right: 46px; }
       <div class="row"><h2 id="volume-title">このタブの音量</h2><output id="amount" for="volume">70%</output></div>
       <input id="volume" type="range" min="0" max="500" step="10" value="70" aria-labelledby="volume-title">
       <div id="volume-scale" class="volume-scale"></div>
-      <button id="reset" type="button">100% に戻す</button>
+      <div class="volume-actions">
+        <button id="reset" type="button">100% に戻す</button>
+        <button id="mute" type="button">ミュート</button>
+      </div>
       <p id="boost-note" class="muted" hidden>100% を超えると、音源によって音が歪むことがあります。</p>
     </section>
     <section aria-labelledby="saved-title">
@@ -174,10 +178,12 @@ const recordPrefix = 'tab-volume-mock-rule:';
 const showAll = location.hash === '#saved-settings';
 const names = { host: 'ホスト', path: 'パス', query: 'パス＋選択したクエリパラメータ' };
 const volume = find('volume');
+const mute = find('mute');
 const queryItems = find('query-items');
 const tickPattern = find('tick-pattern');
 const darkMode = find('dark-mode');
 let url;
+let lastAudibleVolume = 100;
 
 function renderOptions() {
   find('popup').dataset.theme = darkMode.checked ? 'dark' : 'light';
@@ -248,7 +254,10 @@ function render() {
   find('queries').hidden = scope !== 'query';
   find('save').disabled = !valid;
   find('amount').value = volume.value + '%';
-  find('boost-note').hidden = Number(volume.value) <= 100;
+  const currentVolume = Number(volume.value);
+  if (currentVolume > 0) lastAudibleVolume = currentVolume;
+  mute.textContent = currentVolume === 0 ? 'ミュート解除' : 'ミュート';
+  find('boost-note').hidden = currentVolume <= 100;
   return rule;
 }
 
@@ -348,6 +357,10 @@ document.querySelectorAll('input[name="scope"]').forEach(input => input.addEvent
 queryItems.addEventListener('change', render);
 volume.addEventListener('input', render);
 find('reset').addEventListener('click', () => { volume.value = 100; render(); });
+mute.addEventListener('click', () => {
+  volume.value = Number(volume.value) === 0 ? lastAudibleVolume : 0;
+  render();
+});
 let saveTimer;
 const saveStatus = find('save-status');
 find('save').addEventListener('click', () => {
