@@ -53,24 +53,18 @@ select { border: 1px solid #bccae0; border-radius: 7px; padding: 4px; background
     <span>拡張ポップアップの画面イメージ</span>
     <label>サンプル <select id="sample"><option value="youtube">YouTube</option><option value="nico">ニコニコ動画</option></select></label>
   </div>
+  <div class="caption">
+    <label>目盛り <select id="tick-pattern">
+      <option value="50">長い目盛り 100% ／ 短い目盛り 50%</option>
+      <option value="10">長い目盛り 50% ／ 短い目盛り 10%</option>
+    </select></label>
+  </div>
   <article class="panel">
     <header><h1>tab-volume</h1><p class="tab" id="address"></p></header>
     <section aria-labelledby="volume-title">
       <div class="row"><h2 id="volume-title">このタブの音量</h2><output id="amount" for="volume">70%</output></div>
       <input id="volume" type="range" min="0" max="500" step="10" value="70" aria-labelledby="volume-title">
-      <div class="volume-scale" aria-hidden="true">
-        <span style="--position: 0%">0%</span>
-        <span class="minor-tick" style="--position: 10%"></span>
-        <span style="--position: 20%">100%</span>
-        <span class="minor-tick" style="--position: 30%"></span>
-        <span style="--position: 40%">200%</span>
-        <span class="minor-tick" style="--position: 50%"></span>
-        <span style="--position: 60%">300%</span>
-        <span class="minor-tick" style="--position: 70%"></span>
-        <span style="--position: 80%">400%</span>
-        <span class="minor-tick" style="--position: 90%"></span>
-        <span style="--position: 100%">500%</span>
-      </div>
+      <div id="volume-scale" class="volume-scale" aria-hidden="true"></div>
       <button id="reset" type="button">100% に戻す</button>
       <p id="boost-note" class="muted" hidden>100% を超えると、音源によって音が歪むことがあります。</p>
     </section>
@@ -107,6 +101,21 @@ const volume = find('volume');
 const queryItems = find('query-items');
 let url;
 let candidate;
+
+function renderScale() {
+  const scale = find('volume-scale');
+  const minorStep = Number(find('tick-pattern').value);
+  const majorStep = minorStep === 10 ? 50 : 100;
+  const max = Number(volume.max);
+  scale.replaceChildren();
+  for (let value = 0; value <= max; value += minorStep) {
+    const tick = document.createElement('span');
+    tick.style.setProperty('--position', (value / max * 100) + '%');
+    tick.classList.toggle('minor-tick', value % majorStep !== 0);
+    if (value % 100 === 0) tick.textContent = value + '%';
+    scale.append(tick);
+  }
+}
 
 function ruleLabel(rule) {
   const base = rule.host + rule.path;
@@ -172,6 +181,7 @@ function loadSample() {
 
 let order = 0;
 find('sample').addEventListener('change', loadSample);
+find('tick-pattern').addEventListener('change', renderScale);
 document.querySelectorAll('input[name="scope"]').forEach(input => input.addEventListener('change', render));
 queryItems.addEventListener('change', render);
 volume.addEventListener('input', render);
@@ -189,6 +199,7 @@ find('apply').addEventListener('click', () => {
   find('status').textContent = '保存値をこのタブの表示に適用しました';
   render();
 });
+renderScale();
 loadSample();
 </script>
 </body>
