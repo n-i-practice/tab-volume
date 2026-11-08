@@ -1,9 +1,44 @@
+export const languageKey = 'display:language';
+
+const catalogs = new Map();
+let catalog;
+let language = chrome.i18n.getMessage('page_language');
+let percent = volumeFormatter(language);
+let languageRequest = 0;
+
 export function message(key, substitutions) {
-  return chrome.i18n.getMessage(key, substitutions);
+  const entry = catalog?.[key];
+  if (!entry) return chrome.i18n.getMessage(key, substitutions);
+  const values = Array.isArray(substitutions) ? substitutions : [substitutions];
+  return entry.message.replace(/\$([a-z_]+)\$/gi, (token, name) => {
+    const content = entry.placeholders?.[name.toLowerCase()]?.content;
+    return content?.replace(/\$(\d+)/g, (_, index) => values[index - 1] ?? '') ?? token;
+  });
 }
 
-const language = message('page_language');
-const percent = new Intl.NumberFormat(language, { style: 'percent', maximumFractionDigits: 0 });
+function volumeFormatter(locale) {
+  return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 });
+}
+
+export async function selectLanguage(preference) {
+  const request = ++languageRequest;
+  if (preference !== 'ja' && preference !== 'en') {
+    catalog = undefined;
+    language = chrome.i18n.getMessage('page_language');
+    percent = volumeFormatter(language);
+    return 'auto';
+  }
+  if (!catalogs.has(preference)) {
+    const response = await fetch(chrome.runtime.getURL('_locales/' + preference + '/messages.json'));
+    if (!response.ok) throw new Error('Could not load locale: ' + preference);
+    catalogs.set(preference, await response.json());
+  }
+  if (request !== languageRequest) return null;
+  catalog = catalogs.get(preference);
+  language = preference;
+  percent = volumeFormatter(language);
+  return preference;
+}
 
 export function formatVolume(volume) {
   return percent.format(volume / 100);

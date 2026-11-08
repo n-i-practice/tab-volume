@@ -1,4 +1,4 @@
-import { formatVolume, localizePage, message } from './i18n.js';
+import { formatVolume, languageKey, localizePage, message, selectLanguage } from './i18n.js';
 import { defaultState, pageUrl } from './tab-state.js';
 import { createRule, deletePreset, matchesRule, presetsChanged, readPresets, renderPresets, savePreset } from './presets.js';
 
@@ -9,6 +9,7 @@ const queryItems = find('query-items');
 const savedList = find('saved-list');
 const tickPattern = find('tick-pattern');
 const darkMode = find('dark-mode');
+const languageSelect = find('language');
 const tickKey = 'display:tick-step';
 const darkKey = 'display:dark-mode';
 const checkTimers = new WeakMap();
@@ -24,6 +25,7 @@ let rulesVersion = 0;
 let pageVersion = 0;
 let saveTimer;
 let announcementTimer;
+let languagePreference = 'auto';
 
 function formRule() {
   if (!url) return null;
@@ -122,14 +124,24 @@ function showPage(nextUrl, mode) {
       input.type = 'checkbox';
       input.value = name;
       input.disabled = values.length !== 1;
-      label.append(input, input.disabled ? message('duplicate_query', name) : name + '=' + values[0]);
+      label.append(input, document.createElement('span'));
       queryItems.append(label);
     }
+  }
+  updateQueryLabels();
+  renderRules();
+}
+
+function updateQueryLabels() {
+  for (const input of queryItems.querySelectorAll('input')) {
+    const name = input.value;
+    input.nextElementSibling.textContent = input.disabled
+      ? message('duplicate_query', name)
+      : name + '=' + url.searchParams.get(name);
   }
   const canSelectQuery = !!queryItems.querySelector('input:not(:disabled)');
   document.querySelector('[name="scope"][value="query"]').disabled = !canSelectQuery;
   find('query-detail').textContent = message(canSelectQuery ? 'query_match_detail' : 'no_query_fields');
-  renderRules();
 }
 
 async function refreshPage() {
@@ -286,6 +298,36 @@ async function saveOption(key, value) {
   }
 }
 
+async function applyLanguage(preference) {
+  const selected = await selectLanguage(preference);
+  if (selected === null) return;
+  languagePreference = selected;
+  languageSelect.value = selected;
+  localizePage();
+  clearTimeout(saveTimer);
+  clearTimeout(announcementTimer);
+  find('save-status').textContent = '';
+  find('apply-announcement').textContent = '';
+  find('language-status').textContent = '';
+  updateQueryLabels();
+  renderScale();
+  renderRules();
+}
+
+languageSelect.addEventListener('change', async () => {
+  const previous = languagePreference;
+  languageSelect.disabled = true;
+  try {
+    await applyLanguage(languageSelect.value);
+    await chrome.storage.local.set({ [languageKey]: languagePreference });
+  } catch {
+    await applyLanguage(previous);
+    find('language-status').textContent = message('language_change_failed');
+  } finally {
+    languageSelect.disabled = false;
+  }
+});
+
 slider.addEventListener('input', () => setVolume(Number(slider.value)));
 find('reset').addEventListener('click', () => setVolume(100));
 mute.addEventListener('click', () => {
@@ -322,12 +364,22 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   render();
 });
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && presetsChanged(changes)) void refreshRules();
+  if (area !== 'local') return;
+  if (presetsChanged(changes)) void refreshRules();
+  if (changes[languageKey] && !languageSelect.disabled) {
+    void applyLanguage(changes[languageKey].newValue).catch(console.error);
+  }
 });
 
 async function initialize() {
-  localizePage();
-  renderScale();
+  try {
+    const values = await chrome.storage.local.get(languageKey);
+    await applyLanguage(values[languageKey]);
+  } catch {
+    await applyLanguage('auto');
+    find('language-status').textContent = message('language_change_failed');
+  }
+  languageSelect.disabled = false;
   void loadOptions().catch(console.error);
   void refreshRules();
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

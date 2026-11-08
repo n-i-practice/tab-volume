@@ -56,6 +56,8 @@ button.primary { background: #255ac5; color: white; border-color: #255ac5; }
 button:disabled { opacity: .55; cursor: default; }
 select { border: 1px solid #bccae0; border-radius: 7px; padding: 4px; background: white; }
 header h1, header .tab { margin-right: 46px; }
+#popup header h1, #popup #address { margin-right: 152px; }
+.language-select { position: absolute; top: 18px; right: 62px; height: 34px; width: 96px; color: #203458; }
 .options-toggle { position: absolute; top: 18px; right: 20px; list-style: none; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #8093b2; border-radius: 8px; cursor: pointer; }
 .options-toggle::-webkit-details-marker { display: none; }
 .options-toggle:hover, details[open] .options-toggle { background: #ffffff20; }

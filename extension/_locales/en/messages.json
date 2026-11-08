@@ -14,6 +14,15 @@
   "options": {
     "message": "Options"
   },
+  "language": {
+    "message": "Display language"
+  },
+  "language_auto": {
+    "message": "Auto"
+  },
+  "language_change_failed": {
+    "message": "Could not change the display language."
+  },
   "tick_marks": {
     "message": "Tick marks"
   },

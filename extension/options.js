@@ -1,4 +1,4 @@
-import { localizePage, message } from './i18n.js';
+import { languageKey, localizePage, message, selectLanguage } from './i18n.js';
 import { deletePreset, presetsChanged, readPresets, renderPresets } from './presets.js';
 
 const list = document.getElementById('all-saved-list');
@@ -30,8 +30,20 @@ async function remove(record) {
   }
 }
 
+async function applyLanguage(preference) {
+  if (await selectLanguage(preference) === null) return;
+  localizePage();
+  await refresh();
+}
+
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && presetsChanged(changes)) void refresh();
+  if (area !== 'local') return;
+  if (changes[languageKey]) {
+    void applyLanguage(changes[languageKey].newValue).catch(console.error);
+  } else if (presetsChanged(changes)) {
+    void refresh();
+  }
 });
-localizePage();
-void refresh();
+chrome.storage.local.get(languageKey)
+  .then(values => applyLanguage(values[languageKey]))
+  .catch(() => applyLanguage('auto'));

@@ -14,6 +14,15 @@
   "options": {
     "message": "オプション"
   },
+  "language": {
+    "message": "表示言語"
+  },
+  "language_auto": {
+    "message": "自動"
+  },
+  "language_change_failed": {
+    "message": "表示言語を変更できませんでした。"
+  },
   "tick_marks": {
     "message": "目盛り"
   },
