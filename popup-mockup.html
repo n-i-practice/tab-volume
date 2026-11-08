@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tab-volume | 保存設定の画面イメージ</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; padding: 32px 14px; background: #eef2f8; color: #18233b; font: 14px/1.6 system-ui, sans-serif; }
+main { max-width: 460px; margin: auto; }
+.caption { margin: 0 0 8px; color: #465570; font-size: 12px; }
+.panel { background: white; border: 1px solid #d7dfec; border-radius: 18px; box-shadow: 0 12px 36px #223a641c; overflow: hidden; }
+header, section { padding: 18px 20px; }
+header { background: #152643; color: white; }
+h1, h2, p { margin: 0; }
+h1 { font-size: 20px; }
+h2 { font-size: 16px; }
+section + section { border-top: 1px solid #e2e8f2; }
+.tab { color: #c8d7ed; font-size: 12px; overflow-wrap: anywhere; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+input[type=range] { display: block; width: 100%; margin: 12px 0 4px; accent-color: #255ac5; }
+input[type=radio], input[type=checkbox] { accent-color: #255ac5; }
+output { color: #1948a1; font-weight: 750; font-size: 23px; font-variant-numeric: tabular-nums; }
+.muted { color: #4f5d75; font-size: 12px; }
+fieldset { margin: 12px 0; padding: 0; border: 0; min-width: 0; }
+legend { margin-bottom: 5px; font-weight: 650; }
+.choice { display: flex; gap: 9px; padding: 9px 10px; margin-bottom: 6px; border: 1px solid #dce4ef; border-radius: 9px; cursor: pointer; }
+.choice:has(input:checked) { background: #eff5ff; border-color: #638adc; }
+.choice:has(input:disabled) { color: #52627b; cursor: default; }
+.choice input { align-self: start; margin: 5px 0 0; }
+.choice small { display: block; overflow-wrap: anywhere; color: #4f5d75; }
+.query-item { display: block; overflow-wrap: anywhere; }
+.preview, .saved { padding: 9px 11px; border-radius: 9px; background: #f2f5fa; overflow-wrap: anywhere; }
+.preview code { display: block; font-size: 12px; }
+.actions { margin: 10px 0 0; }
+.saved { margin-top: 12px; }
+button, select { font: inherit; }
+button { border: 1px solid #bccae0; background: white; color: #203458; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+button.primary { background: #255ac5; color: white; border-color: #255ac5; }
+button:disabled { opacity: .55; cursor: default; }
+select { border: 1px solid #bccae0; border-radius: 7px; padding: 4px; background: white; }
+.status { min-height: 19px; margin-top: 7px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="row caption">
+    <span>拡張ポップアップの画面イメージ</span>
+    <label>サンプル <select id="sample"><option value="youtube">YouTube</option><option value="nico">ニコニコ動画</option></select></label>
+  </div>
+  <article class="panel">
+    <header><h1>tab-volume</h1><p class="tab" id="address"></p></header>
+    <section aria-labelledby="volume-title">
+      <div class="row"><h2 id="volume-title">このタブの音量</h2><output id="amount" for="volume">70%</output></div>
+      <input id="volume" type="range" min="0" max="500" value="70" aria-labelledby="volume-title">
+      <div class="row muted"><span>0%</span><button id="reset" type="button">100% に戻す</button><span>500%</span></div>
+      <p id="boost-note" class="muted" hidden>100% を超えると、音源によって音が歪むことがあります。</p>
+    </section>
+    <section aria-labelledby="save-title">
+      <h2 id="save-title">音量設定を保存</h2>
+      <p class="muted">この音量をどの URL で使うか選びます。</p>
+      <fieldset>
+        <legend>保存単位</legend>
+        <label class="choice"><input type="radio" name="scope" value="host" checked><span>ホスト<small id="host-detail"></small></span></label>
+        <label class="choice"><input type="radio" name="scope" value="path"><span>パス<small id="path-detail"></small></span></label>
+        <label class="choice"><input type="radio" name="scope" value="query"><span>パス＋選択したクエリパラメータ<small id="query-detail"></small></span></label>
+      </fieldset>
+      <fieldset id="queries" hidden>
+        <legend>照合するクエリパラメータ</legend>
+        <p class="muted">選んだ項目がすべて一致すると適用できます。</p>
+        <div id="query-items"></div>
+      </fieldset>
+      <div class="preview"><span class="muted">保存する条件</span><code id="preview" aria-live="polite"></code></div>
+      <div class="row actions"><span class="muted">保存音量 <strong id="save-amount">70%</strong></span><button class="primary" id="save" type="button">この条件で保存</button></div>
+      <div class="row saved" id="candidate" hidden><div><strong id="candidate-value"></strong><p class="muted" id="candidate-rule"></p></div><button id="apply" type="button">適用</button></div>
+      <p class="muted status" id="status" role="status"></p>
+    </section>
+  </article>
+</main>
+<script>
+const samples = {
+  youtube: 'https://www.youtube.com/watch?v=ABC123&t=30',
+  nico: 'https://www.nicovideo.jp/watch/sm46647529'
+};
+const find = id => document.getElementById(id);
+const records = new Map();
+const names = { host: 'ホスト', path: 'パス', query: 'パス＋選択したクエリパラメータ' };
+const volume = find('volume');
+const queryItems = find('query-items');
+let url;
+let candidate;
+
+function ruleLabel(rule) {
+  const base = rule.host + rule.path;
+  const params = new URLSearchParams(rule.params).toString();
+  return params ? base + '?' + params : base;
+}
+
+function render() {
+  const scope = document.querySelector('input[name="scope"]:checked').value;
+  const params = Array.from(queryItems.querySelectorAll('input:checked'), input => [
+    input.value, url.searchParams.get(input.value)
+  ]).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);
+  const rule = { scope, host: url.hostname, path: scope === 'host' ? '' : url.pathname, params: scope === 'query' ? params : [] };
+  const valid = scope !== 'query' || params.length > 0;
+  find('queries').hidden = scope !== 'query';
+  find('save').disabled = !valid;
+  find('preview').textContent = valid ? ruleLabel(rule) : 'クエリパラメータを1つ以上選んでください';
+  find('amount').value = volume.value + '%';
+  find('save-amount').textContent = volume.value + '%';
+  find('boost-note').hidden = Number(volume.value) <= 100;
+  candidate = Array.from(records.values()).filter(item =>
+    item.host === url.hostname && (!item.path || item.path === url.pathname) &&
+    item.params.every(([name, value]) => {
+      const values = url.searchParams.getAll(name);
+      return values.length === 1 && values[0] === value;
+    })
+  ).sort((left, right) =>
+    Object.keys(names).indexOf(right.scope) - Object.keys(names).indexOf(left.scope) ||
+    right.params.length - left.params.length || right.order - left.order
+  )[0];
+  find('candidate').hidden = !candidate;
+  if (candidate) {
+    find('candidate-value').textContent = '保存値 ' + candidate.volume + '%（' + names[candidate.scope] + '）';
+    find('candidate-rule').textContent = ruleLabel(candidate);
+  }
+  return rule;
+}
+
+function loadSample() {
+  url = new URL(samples[find('sample').value]);
+  find('address').textContent = url.href;
+  find('host-detail').textContent = url.hostname;
+  find('path-detail').textContent = url.hostname + url.pathname;
+  document.querySelector('[value="host"]').checked = true;
+  queryItems.replaceChildren();
+  for (const name of new Set(url.searchParams.keys())) {
+    const values = url.searchParams.getAll(name);
+    const label = document.createElement('label');
+    label.className = 'query-item';
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.value = name;
+    input.disabled = values.length !== 1;
+    label.append(input, values.length === 1 ? name + '=' + values[0] : name + '（同名項目が複数）');
+    queryItems.append(label);
+  }
+  const hasChoices = Boolean(queryItems.querySelector('input:not(:disabled)'));
+  document.querySelector('[value="query"]').disabled = !hasChoices;
+  find('query-detail').textContent = hasChoices ? '選んだ名前と値がすべて一致する場合に適用可能' : '選べるクエリパラメータがありません';
+  find('status').textContent = '';
+  render();
+}
+
+let order = 0;
+find('sample').addEventListener('change', loadSample);
+document.querySelectorAll('input[name="scope"]').forEach(input => input.addEventListener('change', render));
+queryItems.addEventListener('change', render);
+volume.addEventListener('input', render);
+find('reset').addEventListener('click', () => { volume.value = 100; render(); });
+find('save').addEventListener('click', () => {
+  const rule = render();
+  if (find('save').disabled) return;
+  records.set(JSON.stringify(rule), { ...rule, volume: Number(volume.value), order: ++order });
+  find('status').textContent = names[rule.scope] + '単位で保存しました（プレビュー内）';
+  render();
+});
+find('apply').addEventListener('click', () => {
+  if (!candidate) return;
+  volume.value = candidate.volume;
+  find('status').textContent = '保存値をこのタブの表示に適用しました';
+  render();
+});
+loadSample();
+</script>
+</body>
+</html>
