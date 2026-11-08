@@ -1,0 +1,218 @@
+{
+  "page_language": {
+    "message": "hi"
+  },
+  "extension_description": {
+    "message": "Chrome के हर टैब की आवाज़ अलग से नियंत्रित करें और साइट या पेज के लिए सेटिंग सहेजें।"
+  },
+  "audio_document_reason": {
+    "message": "कैप्चर की गई टैब की आवाज़ को चुने हुए वॉल्यूम पर इसी डिवाइस पर चलाएँ।"
+  },
+  "options_page_title": {
+    "message": "सहेजी गई सेटिंग | tab-volume"
+  },
+  "options": {
+    "message": "विकल्प"
+  },
+  "language": {
+    "message": "प्रदर्शन की भाषा"
+  },
+  "language_auto": {
+    "message": "स्वचालित"
+  },
+  "language_change_failed": {
+    "message": "प्रदर्शन की भाषा नहीं बदली जा सकी।"
+  },
+  "tick_marks": {
+    "message": "पैमाने के निशान"
+  },
+  "tick_standard": {
+    "message": "सामान्य (हर 50% पर)"
+  },
+  "tick_fine": {
+    "message": "बारीक (हर 10% पर)"
+  },
+  "dark_mode": {
+    "message": "डार्क मोड"
+  },
+  "all_settings": {
+    "message": "सहेजी गई सेटिंग"
+  },
+  "all_sites": {
+    "message": "सभी साइटों की वॉल्यूम सेटिंग"
+  },
+  "all_settings_empty": {
+    "message": "कोई सेटिंग सहेजी नहीं गई है।"
+  },
+  "tab_volume": {
+    "message": "इस टैब का वॉल्यूम"
+  },
+  "reset_volume": {
+    "message": "100% पर लौटाएँ"
+  },
+  "mute": {
+    "message": "म्यूट करें"
+  },
+  "unmute": {
+    "message": "म्यूट हटाएँ"
+  },
+  "boost_warning": {
+    "message": "100% से ज़्यादा वॉल्यूम पर कुछ ऑडियो में आवाज़ फट सकती है।"
+  },
+  "checking_tab": {
+    "message": "इस टैब की जाँच हो रही है…"
+  },
+  "retry": {
+    "message": "फिर से कोशिश करें"
+  },
+  "saved_rules": {
+    "message": "सहेजे गए नियम"
+  },
+  "matching_settings_empty": {
+    "message": "इस पेज से मेल खाने वाला कोई सहेजा गया नियम नहीं है।"
+  },
+  "save_volume": {
+    "message": "वॉल्यूम सेटिंग सहेजें"
+  },
+  "save_rule": {
+    "message": "सहेजने का नियम"
+  },
+  "choose_scope": {
+    "message": "चुनें कि यह वॉल्यूम सेटिंग किन URL पर लागू की जा सकती है।"
+  },
+  "save_scope": {
+    "message": "किस आधार पर मिलान करें"
+  },
+  "scope_host": {
+    "message": "होस्ट"
+  },
+  "scope_path": {
+    "message": "पाथ"
+  },
+  "scope_query": {
+    "message": "पाथ + चुने हुए क्वेरी पैरामीटर"
+  },
+  "query_fields": {
+    "message": "मिलान के लिए क्वेरी पैरामीटर"
+  },
+  "choose_query_fields": {
+    "message": "कम से कम एक पैरामीटर चुनें। सभी चुने हुए पैरामीटर मेल खाने पर ही नियम लागू किया जा सकता है।"
+  },
+  "save": {
+    "message": "इस नियम के साथ सहेजें"
+  },
+  "apply": {
+    "message": "लागू करें"
+  },
+  "delete": {
+    "message": "हटाएँ"
+  },
+  "rule_volume": {
+    "message": "$SCOPE$: $VOLUME$",
+    "placeholders": {
+      "scope": {
+        "content": "$1"
+      },
+      "volume": {
+        "content": "$2"
+      }
+    }
+  },
+  "apply_rule": {
+    "message": "$RULE$ के लिए $LABEL$ लागू करें",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "rule": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_rule": {
+    "message": "$RULE$ के लिए सहेजा गया नियम हटाएँ",
+    "placeholders": {
+      "rule": {
+        "content": "$1"
+      }
+    }
+  },
+  "unsupported": {
+    "message": "इस पेज पर वॉल्यूम नियंत्रित नहीं किया जा सकता।"
+  },
+  "page_changed_settings": {
+    "message": "पेज बदल गया है। सहेजी गई सेटिंग इस्तेमाल करने के लिए पॉपअप फिर से खोलें।"
+  },
+  "page_changed_adjustment": {
+    "message": "पेज बदल गया है। वॉल्यूम बदलने के लिए पॉपअप फिर से खोलें।"
+  },
+  "capture_starting": {
+    "message": "ऑडियो कैप्चर शुरू हो रहा है…"
+  },
+  "capture_conflict": {
+    "message": "इस टैब का कैप्चर पहले से चल रहा है। शेयर करना या रिकॉर्ड करना बंद करें और फिर कोशिश करें।"
+  },
+  "apply_failed": {
+    "message": "वॉल्यूम लागू नहीं किया जा सका। फिर से कोशिश करें या कोई और स्तर चुनें।"
+  },
+  "load_settings_failed": {
+    "message": "सहेजी गई सेटिंग लोड नहीं हो सकीं।"
+  },
+  "duplicate_query": {
+    "message": "$NAME$ (एक से ज़्यादा बार मौजूद)",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "query_match_detail": {
+    "message": "चुने हुए सभी पैरामीटर के नाम और मान मेल खाने चाहिए।"
+  },
+  "no_query_fields": {
+    "message": "चुनने के लिए कोई क्वेरी पैरामीटर नहीं है।"
+  },
+  "audio_no_response": {
+    "message": "ऑडियो प्रोसेसर ने जवाब नहीं दिया।"
+  },
+  "applied_volume": {
+    "message": "वॉल्यूम $VOLUME$ पर सेट है।",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "delete_failed": {
+    "message": "सेटिंग हटाई नहीं जा सकी।"
+  },
+  "saved": {
+    "message": "सहेज लिया गया"
+  },
+  "save_failed": {
+    "message": "सेटिंग सहेजी नहीं जा सकी।"
+  },
+  "set_volume": {
+    "message": "वॉल्यूम $VOLUME$ पर सेट करें",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "display_save_failed": {
+    "message": "प्रदर्शन की सेटिंग सहेजी नहीं जा सकीं।"
+  },
+  "open_settings_failed": {
+    "message": "सहेजी गई सेटिंग नहीं खुल सकीं।"
+  },
+  "audio_processing_ended": {
+    "message": "इस टैब के ऑडियो की प्रोसेसिंग बंद हो गई है।"
+  },
+  "target_page_changed": {
+    "message": "वह पेज बदल गया है जिस पर वॉल्यूम लागू होना था।"
+  },
+  "capture_ended": {
+    "message": "टैब का कैप्चर बंद हो गया है।"
+  }
+}

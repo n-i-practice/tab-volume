@@ -1,0 +1,218 @@
+{
+  "page_language": {
+    "message": "zh-CN"
+  },
+  "extension_description": {
+    "message": "单独调节每个 Chrome 标签页的音量，并按网站或网页保存设置。"
+  },
+  "audio_document_reason": {
+    "message": "在本机以设定的音量播放捕获的标签页音频。"
+  },
+  "options_page_title": {
+    "message": "已保存的设置 | tab-volume"
+  },
+  "options": {
+    "message": "选项"
+  },
+  "language": {
+    "message": "显示语言"
+  },
+  "language_auto": {
+    "message": "自动"
+  },
+  "language_change_failed": {
+    "message": "无法更改显示语言。"
+  },
+  "tick_marks": {
+    "message": "刻度"
+  },
+  "tick_standard": {
+    "message": "标准（间隔 50%）"
+  },
+  "tick_fine": {
+    "message": "精细（间隔 10%）"
+  },
+  "dark_mode": {
+    "message": "深色模式"
+  },
+  "all_settings": {
+    "message": "已保存的设置"
+  },
+  "all_sites": {
+    "message": "所有网站的音量设置"
+  },
+  "all_settings_empty": {
+    "message": "暂无已保存的设置。"
+  },
+  "tab_volume": {
+    "message": "当前标签页音量"
+  },
+  "reset_volume": {
+    "message": "恢复到 100%"
+  },
+  "mute": {
+    "message": "静音"
+  },
+  "unmute": {
+    "message": "取消静音"
+  },
+  "boost_warning": {
+    "message": "音量超过 100% 时，部分音频可能失真。"
+  },
+  "checking_tab": {
+    "message": "正在检查当前标签页…"
+  },
+  "retry": {
+    "message": "重试"
+  },
+  "saved_rules": {
+    "message": "已保存的规则"
+  },
+  "matching_settings_empty": {
+    "message": "没有与此网页匹配的已保存规则。"
+  },
+  "save_volume": {
+    "message": "保存音量设置"
+  },
+  "save_rule": {
+    "message": "保存规则"
+  },
+  "choose_scope": {
+    "message": "选择可应用此音量设置的 URL 范围。"
+  },
+  "save_scope": {
+    "message": "匹配方式"
+  },
+  "scope_host": {
+    "message": "主机名"
+  },
+  "scope_path": {
+    "message": "路径"
+  },
+  "scope_query": {
+    "message": "路径 + 选定的查询参数"
+  },
+  "query_fields": {
+    "message": "用于匹配的查询参数"
+  },
+  "choose_query_fields": {
+    "message": "请至少选择一个参数。所有选定参数均匹配时，才可应用此规则。"
+  },
+  "save": {
+    "message": "按此规则保存"
+  },
+  "apply": {
+    "message": "应用"
+  },
+  "delete": {
+    "message": "删除"
+  },
+  "rule_volume": {
+    "message": "$SCOPE$：$VOLUME$",
+    "placeholders": {
+      "scope": {
+        "content": "$1"
+      },
+      "volume": {
+        "content": "$2"
+      }
+    }
+  },
+  "apply_rule": {
+    "message": "对 $RULE$ 应用 $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "rule": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_rule": {
+    "message": "删除 $RULE$ 的已保存规则",
+    "placeholders": {
+      "rule": {
+        "content": "$1"
+      }
+    }
+  },
+  "unsupported": {
+    "message": "此网页不支持音量调节。"
+  },
+  "page_changed_settings": {
+    "message": "网页已更改。请重新打开弹窗以使用已保存的设置。"
+  },
+  "page_changed_adjustment": {
+    "message": "网页已更改。请重新打开弹窗以调节音量。"
+  },
+  "capture_starting": {
+    "message": "正在启动音频捕获…"
+  },
+  "capture_conflict": {
+    "message": "此标签页正在被其他程序捕获。请停止共享或录制后重试。"
+  },
+  "apply_failed": {
+    "message": "无法应用音量设置。请重试或选择其他音量。"
+  },
+  "load_settings_failed": {
+    "message": "无法加载已保存的设置。"
+  },
+  "duplicate_query": {
+    "message": "$NAME$（参数名重复）",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "query_match_detail": {
+    "message": "选定参数的名称和值必须全部匹配。"
+  },
+  "no_query_fields": {
+    "message": "没有可选的查询参数。"
+  },
+  "audio_no_response": {
+    "message": "音频处理程序没有响应。"
+  },
+  "applied_volume": {
+    "message": "音量已设为 $VOLUME$。",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "delete_failed": {
+    "message": "无法删除设置。"
+  },
+  "saved": {
+    "message": "已保存"
+  },
+  "save_failed": {
+    "message": "无法保存设置。"
+  },
+  "set_volume": {
+    "message": "将音量设为 $VOLUME$",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "display_save_failed": {
+    "message": "无法保存显示设置。"
+  },
+  "open_settings_failed": {
+    "message": "无法打开已保存的设置。"
+  },
+  "audio_processing_ended": {
+    "message": "此标签页的音频处理已结束。"
+  },
+  "target_page_changed": {
+    "message": "目标网页已更改。"
+  },
+  "capture_ended": {
+    "message": "标签页捕获已结束。"
+  }
+}

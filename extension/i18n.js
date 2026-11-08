@@ -1,5 +1,6 @@
 export const languageKey = 'display:language';
 
+const supportedLanguages = ['ja', 'en', 'hi', 'zh_CN'];
 const catalogs = new Map();
 let catalog;
 let language = chrome.i18n.getMessage('page_language');
@@ -22,7 +23,7 @@ function volumeFormatter(locale) {
 
 export async function selectLanguage(preference) {
   const request = ++languageRequest;
-  if (preference !== 'ja' && preference !== 'en') {
+  if (!supportedLanguages.includes(preference)) {
     catalog = undefined;
     language = chrome.i18n.getMessage('page_language');
     percent = volumeFormatter(language);
@@ -35,7 +36,7 @@ export async function selectLanguage(preference) {
   }
   if (request !== languageRequest) return null;
   catalog = catalogs.get(preference);
-  language = preference;
+  language = catalog.page_language.message;
   percent = volumeFormatter(language);
   return preference;
 }
