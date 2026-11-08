@@ -44,8 +44,6 @@ legend { margin-bottom: 5px; font-weight: 650; }
 .save-status { color: #216743; font-weight: 700; }
 .apply-check { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #217849; color: white; font-size: 16px; font-weight: 800; visibility: hidden; }
 .apply-check.is-visible { visibility: visible; }
-.saved-conditions { margin-top: 14px; }
-.saved-conditions h3 { margin: 0 0 4px; font-size: 14px; }
 button, select { font: inherit; }
 button { border: 1px solid #bccae0; background: white; color: #203458; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
 button.primary { background: #255ac5; color: white; border-color: #255ac5; }
@@ -114,6 +112,12 @@ header h1, header .tab { margin-right: 46px; }
       <button id="reset" type="button">100% に戻す</button>
       <p id="boost-note" class="muted" hidden>100% を超えると、音源によって音が歪むことがあります。</p>
     </section>
+    <section aria-labelledby="saved-title">
+      <h2 id="saved-title">保存されている条件</h2>
+      <p class="muted" id="saved-empty">このページに一致する保存条件はありません。</p>
+      <ul class="saved-list" id="saved-list"></ul>
+      <p class="muted list-error" id="saved-error" role="status"></p>
+    </section>
     <section aria-labelledby="save-title">
       <h2 id="save-title">音量設定を保存</h2>
       <p class="muted">この音量をどの URL で使うか選びます。</p>
@@ -131,12 +135,6 @@ header h1, header .tab { margin-right: 46px; }
       <div class="actions">
         <button class="primary" id="save" type="button">この条件で保存</button>
         <span class="save-status" id="save-status" role="status"></span>
-      </div>
-      <div class="saved-conditions">
-        <h3>保存されている条件</h3>
-        <p class="muted" id="saved-empty">このページに一致する保存条件はありません。</p>
-        <ul class="saved-list" id="saved-list"></ul>
-        <p class="muted list-error" id="saved-error" role="status"></p>
       </div>
       <template id="saved-item">
         <li class="row saved">
