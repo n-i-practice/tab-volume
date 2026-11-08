@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,70 +13,70 @@
       <h1>tab-volume</h1>
       <p class="tab" id="address"></p>
       <details>
-        <summary class="options-toggle" aria-label="オプション" title="オプション">
+        <summary class="options-toggle" data-i18n-label="options" data-i18n-title="options">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
             <path d="m10 3-.5 2.2-1.6.9-2.2-.7-2 3.5 1.7 1.5v1.8l-1.7 1.5 2 3.5 2.2-.7 1.6.9.5 2.2h4l.5-2.2 1.6-.9 2.2.7 2-3.5-1.7-1.5v-1.8l1.7-1.5-2-3.5-2.2.7-1.6-.9L14 3z"/>
             <circle cx="12" cy="11.3" r="2.6"/>
           </svg>
         </summary>
         <div class="options-panel">
-          <label>目盛り <select id="tick-pattern">
-            <option value="50">標準（50%間隔）</option>
-            <option value="10">細かめ（10%間隔）</option>
+          <label><span data-i18n="tick_marks"></span> <select id="tick-pattern">
+            <option value="50" data-i18n="tick_standard"></option>
+            <option value="10" data-i18n="tick_fine"></option>
           </select></label>
-          <label><input type="checkbox" id="dark-mode"> ダークモード</label>
-          <button class="options-link" id="open-options" type="button">保存されている設定一覧 <span aria-hidden="true">↗</span></button>
+          <label><input type="checkbox" id="dark-mode"> <span data-i18n="dark_mode"></span></label>
+          <button class="options-link" id="open-options" type="button"><span data-i18n="all_settings"></span> <span aria-hidden="true">↗</span></button>
           <p class="tab" id="options-status" role="status"></p>
         </div>
       </details>
     </header>
     <section aria-labelledby="volume-title">
-      <div class="row"><h2 id="volume-title">このタブの音量</h2><output id="amount" for="volume">—</output></div>
+      <div class="row"><h2 id="volume-title" data-i18n="tab_volume"></h2><output id="amount" for="volume">—</output></div>
       <fieldset id="volume-slider" class="volume-slider" aria-labelledby="volume-title" disabled>
         <input id="volume" type="range" min="0" max="500" step="10" value="100" aria-labelledby="volume-title">
         <div id="volume-scale" class="volume-scale"></div>
       </fieldset>
       <div class="volume-actions">
-        <button id="reset" type="button" disabled>100% に戻す</button>
+        <button id="reset" type="button" data-i18n="reset_volume" disabled></button>
         <button id="mute" class="mute-button" type="button" disabled>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 9h4l5-4v14l-5-4H3z"/>
             <path class="speaker-on" d="M16 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/>
             <path class="speaker-off" d="m16 9 6 6m0-6-6 6"/>
           </svg>
-          <span id="mute-label">ミュート</span>
+          <span id="mute-label" data-i18n="mute"></span>
         </button>
       </div>
-      <p id="boost-note" class="muted" hidden>100% を超えると、音源によって音が歪むことがあります。</p>
+      <p id="boost-note" class="muted" data-i18n="boost_warning" hidden></p>
       <div class="capture-notice" id="capture-notice">
-        <p class="muted" id="capture-message" role="status">タブを確認しています…</p>
-        <button id="retry" type="button" hidden>再試行</button>
+        <p class="muted" id="capture-message" data-i18n="checking_tab" role="status"></p>
+        <button id="retry" type="button" data-i18n="retry" hidden></button>
       </div>
     </section>
     <section id="saved-area" aria-labelledby="saved-title" hidden>
-      <h2 id="saved-title">保存されている条件</h2>
-      <p class="muted" id="saved-empty">このページに一致する保存条件はありません。</p>
+      <h2 id="saved-title" data-i18n="saved_rules"></h2>
+      <p class="muted" id="saved-empty" data-i18n="matching_settings_empty"></p>
       <ul class="saved-list" id="saved-list"></ul>
       <p class="muted list-error" id="saved-error" role="status"></p>
       <p class="visually-hidden" id="apply-announcement" role="status"></p>
     </section>
     <details id="save-area" hidden>
-      <summary>音量設定を保存</summary>
-      <section aria-label="保存条件の入力">
-        <p class="muted">この音量をどの URL で使うか選びます。</p>
+      <summary data-i18n="save_volume"></summary>
+      <section data-i18n-label="save_rule">
+        <p class="muted" data-i18n="choose_scope"></p>
         <fieldset>
-          <legend>保存単位</legend>
-          <label class="choice"><input type="radio" name="scope" value="host" checked><span>ホスト<small id="host-detail"></small></span></label>
-          <label class="choice"><input type="radio" name="scope" value="path"><span>パス<small id="path-detail"></small></span></label>
-          <label class="choice"><input type="radio" name="scope" value="query"><span>パス＋選択したクエリパラメータ<small id="query-detail"></small></span></label>
+          <legend data-i18n="save_scope"></legend>
+          <label class="choice"><input type="radio" name="scope" value="host" checked><span><span data-i18n="scope_host"></span><small id="host-detail"></small></span></label>
+          <label class="choice"><input type="radio" name="scope" value="path"><span><span data-i18n="scope_path"></span><small id="path-detail"></small></span></label>
+          <label class="choice"><input type="radio" name="scope" value="query"><span><span data-i18n="scope_query"></span><small id="query-detail"></small></span></label>
         </fieldset>
         <fieldset id="queries" hidden>
-          <legend>照合するクエリパラメータ</legend>
-          <p class="muted">1つ以上選んでください。選んだ項目がすべて一致すると適用できます。</p>
+          <legend data-i18n="query_fields"></legend>
+          <p class="muted" data-i18n="choose_query_fields"></p>
           <div id="query-items"></div>
         </fieldset>
         <div class="actions">
-          <button class="primary" id="save" type="button">この条件で保存</button>
+          <button class="primary" id="save" type="button" data-i18n="save"></button>
           <span class="save-status" id="save-status" role="status"></span>
         </div>
       </section>

@@ -1,3 +1,4 @@
+import { message } from './i18n.js';
 import { defaultState, pageUrl, validVolume } from './tab-state.js';
 
 const offscreenPath = 'offscreen.html';
@@ -18,7 +19,7 @@ function ensureOffscreen() {
     await chrome.offscreen.createDocument({
       url: offscreenPath,
       reasons: ['USER_MEDIA'],
-      justification: 'Replay captured tab audio locally at the selected volume.'
+      justification: message('audio_document_reason')
     });
   })().finally(() => { opening = undefined; });
   return opening;
@@ -28,7 +29,8 @@ async function offscreen(action, tabId, details = {}) {
   const result = await chrome.runtime.sendMessage({
     receiver: 'offscreen', action, tabId, ...details
   });
-  if (!result || result.error) throw new Error(result?.error ?? '音声処理から応答がありません。');
+  if (result?.error === 'capture_ended') throw new Error(message('capture_ended'));
+  if (!result || result.error) throw new Error(result?.error ?? message('audio_no_response'));
   return result;
 }
 
@@ -40,11 +42,11 @@ async function runChanges(tabId, change) {
     const requested = change.requested;
     if (state.active) {
       state = await offscreen('set', tabId, { settings: requested });
-      if (!state.active) throw new Error('タブの音声処理が終了しました。');
+      if (!state.active) throw new Error(message('audio_processing_ended'));
     } else if (requested.muted || requested.volume !== 100) {
       const tab = await chrome.tabs.get(tabId);
       if (!pageUrl(tab.url) || tab.url !== requested.url) {
-        throw new Error('対象のページが変わりました。');
+        throw new Error(message('target_page_changed'));
       }
       if (!hasDocument) {
         await ensureOffscreen();
@@ -53,7 +55,7 @@ async function runChanges(tabId, change) {
       if (change.requested !== requested) continue;
       const streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tabId });
       const current = await chrome.tabs.get(tabId);
-      if (current.url !== requested.url) throw new Error('対象のページが変わりました。');
+      if (current.url !== requested.url) throw new Error(message('target_page_changed'));
       // A newer slider value may arrive while getUserMedia is opening the stream.
       state = await offscreen('start', tabId, { streamId, settings: change.requested });
     }

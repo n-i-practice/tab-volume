@@ -1,11 +1,12 @@
+import { formatVolume, message } from './i18n.js';
 import { validVolume } from './tab-state.js';
 
 const prefix = 'volume-rule:';
 const scopes = ['host', 'path', 'query'];
 const scopeLabels = {
-  host: 'ホスト',
-  path: 'パス',
-  query: 'パス＋選択したクエリパラメータ'
+  host: 'scope_host',
+  path: 'scope_path',
+  query: 'scope_query'
 };
 
 export function createRule(url, scope, names) {
@@ -71,8 +72,8 @@ rowTemplate.innerHTML = `
     <div class="saved-copy"><strong></strong><p class="muted"></p></div>
     <div class="saved-controls">
       <span class="apply-check" aria-hidden="true">✓</span>
-      <button type="button" data-action="apply">適用</button>
-      <button type="button" data-action="delete" title="削除">
+      <button type="button" data-action="apply"></button>
+      <button type="button" data-action="delete">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h12M6 4V2h4v2m2 0-1 10H5L4 4m3 3v4m2-4v4"/></svg>
       </button>
     </div>
@@ -82,14 +83,15 @@ export function renderPresets(list, records, onDelete, onApply) {
   const rows = records.map(record => {
     const row = rowTemplate.content.firstElementChild.cloneNode(true);
     const condition = ruleLabel(record);
-    const label = scopeLabels[record.scope] + '：' + record.volume + '%';
+    const label = message('rule_volume', [message(scopeLabels[record.scope]), formatVolume(record.volume)]);
     row.querySelector('strong').textContent = label;
     row.querySelector('p').textContent = condition;
 
     const apply = row.querySelector('[data-action="apply"]');
     const check = row.querySelector('.apply-check');
     if (onApply) {
-      apply.setAttribute('aria-label', condition + ' の ' + label + ' を適用');
+      apply.textContent = message('apply');
+      apply.setAttribute('aria-label', message('apply_rule', [label, condition]));
       apply.addEventListener('click', () => onApply(record, check));
     } else {
       apply.remove();
@@ -97,7 +99,8 @@ export function renderPresets(list, records, onDelete, onApply) {
     }
 
     const remove = row.querySelector('[data-action="delete"]');
-    remove.setAttribute('aria-label', condition + ' の保存条件を削除');
+    remove.title = message('delete');
+    remove.setAttribute('aria-label', message('delete_rule', condition));
     remove.addEventListener('click', () => onDelete(record));
     return row;
   });

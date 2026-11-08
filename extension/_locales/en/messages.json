@@ -1,0 +1,209 @@
+{
+  "page_language": {
+    "message": "en"
+  },
+  "extension_description": {
+    "message": "Adjust audio volume per Chrome tab and save settings for sites or pages."
+  },
+  "audio_document_reason": {
+    "message": "Replay captured tab audio locally at the selected volume."
+  },
+  "options_page_title": {
+    "message": "Saved settings | tab-volume"
+  },
+  "options": {
+    "message": "Options"
+  },
+  "tick_marks": {
+    "message": "Tick marks"
+  },
+  "tick_standard": {
+    "message": "Standard (50% intervals)"
+  },
+  "tick_fine": {
+    "message": "Fine (10% intervals)"
+  },
+  "dark_mode": {
+    "message": "Dark mode"
+  },
+  "all_settings": {
+    "message": "Saved settings"
+  },
+  "all_sites": {
+    "message": "Volume settings for all sites"
+  },
+  "all_settings_empty": {
+    "message": "No saved settings."
+  },
+  "tab_volume": {
+    "message": "Tab volume"
+  },
+  "reset_volume": {
+    "message": "Reset to 100%"
+  },
+  "mute": {
+    "message": "Mute"
+  },
+  "unmute": {
+    "message": "Unmute"
+  },
+  "boost_warning": {
+    "message": "Volume above 100% may distort some audio."
+  },
+  "checking_tab": {
+    "message": "Checking this tab…"
+  },
+  "retry": {
+    "message": "Try again"
+  },
+  "saved_rules": {
+    "message": "Saved rules"
+  },
+  "matching_settings_empty": {
+    "message": "No saved rules match this page."
+  },
+  "save_volume": {
+    "message": "Save volume setting"
+  },
+  "save_rule": {
+    "message": "Save rule"
+  },
+  "choose_scope": {
+    "message": "Choose which URLs can use this volume setting."
+  },
+  "save_scope": {
+    "message": "Match by"
+  },
+  "scope_host": {
+    "message": "Host"
+  },
+  "scope_path": {
+    "message": "Path"
+  },
+  "scope_query": {
+    "message": "Path + selected query parameters"
+  },
+  "query_fields": {
+    "message": "Query parameters to match"
+  },
+  "choose_query_fields": {
+    "message": "Select at least one. The rule matches when all selected parameters match."
+  },
+  "save": {
+    "message": "Save with this rule"
+  },
+  "apply": {
+    "message": "Apply"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "rule_volume": {
+    "message": "$SCOPE$: $VOLUME$",
+    "placeholders": {
+      "scope": {
+        "content": "$1"
+      },
+      "volume": {
+        "content": "$2"
+      }
+    }
+  },
+  "apply_rule": {
+    "message": "Apply $LABEL$ for $RULE$",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "rule": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_rule": {
+    "message": "Delete the saved rule for $RULE$",
+    "placeholders": {
+      "rule": {
+        "content": "$1"
+      }
+    }
+  },
+  "unsupported": {
+    "message": "Volume control is unavailable on this page."
+  },
+  "page_changed_settings": {
+    "message": "The page changed. Reopen the popup to use saved settings."
+  },
+  "page_changed_adjustment": {
+    "message": "The page changed. Reopen the popup to adjust the volume."
+  },
+  "capture_starting": {
+    "message": "Starting audio capture…"
+  },
+  "capture_conflict": {
+    "message": "Another capture is using this tab. Stop sharing or recording, then try again."
+  },
+  "apply_failed": {
+    "message": "Could not apply the volume. Try again or choose another volume."
+  },
+  "load_settings_failed": {
+    "message": "Could not load saved settings."
+  },
+  "duplicate_query": {
+    "message": "$NAME$ (repeated parameter)",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "query_match_detail": {
+    "message": "The selected names and values must all match."
+  },
+  "no_query_fields": {
+    "message": "There are no query parameters to select."
+  },
+  "audio_no_response": {
+    "message": "The audio processor did not respond."
+  },
+  "applied_volume": {
+    "message": "Volume set to $VOLUME$.",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "delete_failed": {
+    "message": "Could not delete the setting."
+  },
+  "saved": {
+    "message": "Saved"
+  },
+  "save_failed": {
+    "message": "Could not save the setting."
+  },
+  "set_volume": {
+    "message": "Set volume to $VOLUME$",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "display_save_failed": {
+    "message": "Could not save display settings."
+  },
+  "open_settings_failed": {
+    "message": "Could not open saved settings."
+  },
+  "audio_processing_ended": {
+    "message": "Audio processing for this tab has ended."
+  },
+  "target_page_changed": {
+    "message": "The target page has changed."
+  },
+  "capture_ended": {
+    "message": "Tab capture has ended."
+  }
+}

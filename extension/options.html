@@ -1,18 +1,18 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>保存されている設定一覧 | tab-volume</title>
+  <title data-i18n="options_page_title">tab-volume</title>
   <link rel="stylesheet" href="styles.css">
   <script src="options.js" type="module"></script>
 </head>
 <body class="options-page">
 <main class="management">
   <article class="panel">
-    <header><h1>保存されている設定一覧</h1><p class="tab">すべてのサイトの音量設定</p></header>
-    <section aria-label="保存されている設定">
-      <p class="muted" id="all-saved-empty">保存されている設定はありません。</p>
+    <header><h1 data-i18n="all_settings"></h1><p class="tab" data-i18n="all_sites"></p></header>
+    <section data-i18n-label="all_settings">
+      <p class="muted" id="all-saved-empty" data-i18n="all_settings_empty"></p>
       <ul class="saved-list" id="all-saved-list"></ul>
       <p class="muted list-error" id="all-saved-error" role="status"></p>
     </section>

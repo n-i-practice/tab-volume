@@ -1,3 +1,4 @@
+import { formatVolume, localizePage, message } from './i18n.js';
 import { defaultState, pageUrl } from './tab-state.js';
 import { createRule, deletePreset, matchesRule, presetsChanged, readPresets, renderPresets, savePreset } from './presets.js';
 
@@ -39,31 +40,28 @@ function render() {
   const locked = !canAdjust || failure?.conflict === true;
   const starting = requested && !confirmed.active && (requested.muted || requested.volume !== 100);
   const notice = {
-    loading: 'タブを確認しています…',
-    unsupported: 'このページでは音量調整を利用できません。',
-    lost: confirmed.active
-      ? 'ページが変わりました。保存設定を使うにはポップアップを開き直してください。'
-      : 'ページが変わりました。音量を調整するにはポップアップを開き直してください。'
+    loading: 'checking_tab',
+    unsupported: 'unsupported',
+    lost: confirmed.active ? 'page_changed_settings' : 'page_changed_adjustment'
   };
-  let message = notice[pageMode] ?? '';
-  if (supported && starting) message = '音声キャプチャを開始しています…';
+  let noticeKey = notice[pageMode];
+  if (supported && starting) noticeKey = 'capture_starting';
   if (supported && failure) {
-    message = failure.conflict
-      ? 'このタブは別のキャプチャで使用中です。共有や録画を終了してから再試行してください。'
-      : '音量を適用できませんでした。再試行するか、音量を選び直してください。';
+    noticeKey = failure.conflict ? 'capture_conflict' : 'apply_failed';
   }
 
+  const volumeText = formatVolume(state.volume);
   slider.value = state.volume;
-  slider.setAttribute('aria-valuetext', state.volume + '%');
-  find('amount').value = canAdjust ? state.volume + '%' : '—';
+  slider.setAttribute('aria-valuetext', volumeText);
+  find('amount').value = canAdjust ? volumeText : '—';
   find('volume-slider').disabled = locked || state.muted;
   find('reset').disabled = locked;
   mute.disabled = locked;
   mute.classList.toggle('is-muted', state.muted);
-  find('mute-label').textContent = state.muted ? 'ミュート解除' : 'ミュート';
+  find('mute-label').textContent = message(state.muted ? 'unmute' : 'mute');
   find('boost-note').hidden = !canAdjust || state.volume <= 100;
-  find('capture-notice').hidden = !message;
-  find('capture-message').textContent = message;
+  find('capture-notice').hidden = !noticeKey;
+  find('capture-message').textContent = noticeKey ? message(noticeKey) : '';
   find('retry').hidden = !supported || !failure;
   find('saved-area').hidden = !supported;
   find('save-area').hidden = !supported;
@@ -94,7 +92,7 @@ async function refreshRules() {
   } catch {
     if (version === rulesVersion) {
       find('saved-empty').hidden = true;
-      find('saved-error').textContent = '保存されている設定を読み込めませんでした。';
+      find('saved-error').textContent = message('load_settings_failed');
     }
   }
 }
@@ -124,15 +122,13 @@ function showPage(nextUrl, mode) {
       input.type = 'checkbox';
       input.value = name;
       input.disabled = values.length !== 1;
-      label.append(input, input.disabled ? name + '（同名項目が複数）' : name + '=' + values[0]);
+      label.append(input, input.disabled ? message('duplicate_query', name) : name + '=' + values[0]);
       queryItems.append(label);
     }
   }
   const canSelectQuery = !!queryItems.querySelector('input:not(:disabled)');
   document.querySelector('[name="scope"][value="query"]').disabled = !canSelectQuery;
-  find('query-detail').textContent = canSelectQuery
-    ? '選んだ名前と値がすべて一致する場合に適用可能'
-    : '選べるクエリパラメータがありません';
+  find('query-detail').textContent = message(canSelectQuery ? 'query_match_detail' : 'no_query_fields');
   renderRules();
 }
 
@@ -149,7 +145,7 @@ async function refreshPage() {
 
 async function readAudio() {
   const result = await chrome.runtime.sendMessage({ receiver: 'worker', action: 'status', tabId });
-  if (!result?.state) throw new Error(result?.error ?? '音声処理から応答がありません。');
+  if (!result?.state) throw new Error(result?.error ?? message('audio_no_response'));
   return result.state;
 }
 
@@ -163,7 +159,7 @@ function announceApplied(check, volume) {
   clearTimeout(announcementTimer);
   announcement.textContent = '';
   announcementTimer = setTimeout(() => {
-    announcement.textContent = '音量を ' + volume + '% に適用しました';
+    announcement.textContent = message('applied_volume', formatVolume(volume));
   }, 100);
 }
 
@@ -181,7 +177,7 @@ async function changeAudio(volume, muted, preset) {
     if (requested !== settings) return;
     if (!result?.state) {
       conflict = result?.conflict === true;
-      throw new Error(result?.error ?? '音声処理から応答がありません。');
+      throw new Error(result?.error ?? message('audio_no_response'));
     }
     confirmed = result.state;
     if (preset && url?.href === settings.url) announceApplied(preset.check, confirmed.volume);
@@ -225,7 +221,7 @@ async function removeRule(record) {
   try {
     await deletePreset(record.key);
   } catch {
-    find('saved-error').textContent = '設定を削除できませんでした。';
+    find('saved-error').textContent = message('delete_failed');
   }
 }
 
@@ -237,11 +233,11 @@ async function save() {
   try {
     await savePreset(rule, confirmed.volume);
     status.classList.remove('is-error');
-    status.textContent = '保存しました';
+    status.textContent = message('saved');
     saveTimer = setTimeout(() => { status.textContent = ''; }, 2000);
   } catch {
     status.classList.add('is-error');
-    status.textContent = '設定を保存できませんでした。';
+    status.textContent = message('save_failed');
   }
 }
 
@@ -258,8 +254,8 @@ function renderScale() {
     if (value % 100 === 0) {
       const label = document.createElement('button');
       label.type = 'button';
-      label.textContent = value + '%';
-      label.setAttribute('aria-label', '音量を ' + value + '% にする');
+      label.textContent = formatVolume(value);
+      label.setAttribute('aria-label', message('set_volume', label.textContent));
       label.addEventListener('click', () => setVolume(value));
       tick.append(label);
     }
@@ -285,7 +281,7 @@ async function saveOption(key, value) {
     await chrome.storage.local.set({ [key]: value });
     status.textContent = '';
   } catch {
-    status.textContent = '表示設定を保存できませんでした。';
+    status.textContent = message('display_save_failed');
     await loadOptions().catch(console.error);
   }
 }
@@ -312,7 +308,7 @@ find('open-options').addEventListener('click', async () => {
   try {
     await chrome.runtime.openOptionsPage();
   } catch {
-    find('options-status').textContent = '設定一覧を開けませんでした。';
+    find('options-status').textContent = message('open_settings_failed');
   }
 });
 
@@ -330,6 +326,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 async function initialize() {
+  localizePage();
   renderScale();
   void loadOptions().catch(console.error);
   void refreshRules();

@@ -48,7 +48,7 @@ async function start({ tabId, streamId, settings }) {
     });
     const tracks = session.stream.getAudioTracks();
     if (sessions.get(tabId) !== session || !tracks.some(track => track.readyState === 'live')) {
-      throw new Error('タブのキャプチャが終了しました。');
+      throw new Error('capture_ended');
     }
     for (const track of tracks) {
       track.addEventListener('ended', () => onTrackEnded(tabId, session), { once: true });
@@ -60,7 +60,7 @@ async function start({ tabId, streamId, settings }) {
     session.gain.gain.value = settings.muted ? 0 : settings.volume / 100;
     source.connect(session.gain).connect(session.context.destination);
     await session.context.resume();
-    if (sessions.get(tabId) !== session) throw new Error('タブのキャプチャが終了しました。');
+    if (sessions.get(tabId) !== session) throw new Error('capture_ended');
     return setGain(session, settings, false);
   } catch (error) {
     if (sessions.get(tabId) === session) sessions.delete(tabId);

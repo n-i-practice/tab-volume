@@ -1,0 +1,209 @@
+{
+  "page_language": {
+    "message": "ja"
+  },
+  "extension_description": {
+    "message": "Chrome のタブごとに音量を調整し、サイトやページごとに設定を保存します。"
+  },
+  "audio_document_reason": {
+    "message": "取り込んだタブの音声を、設定された音量で端末上に再生します。"
+  },
+  "options_page_title": {
+    "message": "保存されている設定一覧 | tab-volume"
+  },
+  "options": {
+    "message": "オプション"
+  },
+  "tick_marks": {
+    "message": "目盛り"
+  },
+  "tick_standard": {
+    "message": "標準（50%間隔）"
+  },
+  "tick_fine": {
+    "message": "細かめ（10%間隔）"
+  },
+  "dark_mode": {
+    "message": "ダークモード"
+  },
+  "all_settings": {
+    "message": "保存されている設定一覧"
+  },
+  "all_sites": {
+    "message": "すべてのサイトの音量設定"
+  },
+  "all_settings_empty": {
+    "message": "保存されている設定はありません。"
+  },
+  "tab_volume": {
+    "message": "このタブの音量"
+  },
+  "reset_volume": {
+    "message": "100% に戻す"
+  },
+  "mute": {
+    "message": "ミュート"
+  },
+  "unmute": {
+    "message": "ミュート解除"
+  },
+  "boost_warning": {
+    "message": "100% を超えると、音源によって音が歪むことがあります。"
+  },
+  "checking_tab": {
+    "message": "タブを確認しています…"
+  },
+  "retry": {
+    "message": "再試行"
+  },
+  "saved_rules": {
+    "message": "保存されている条件"
+  },
+  "matching_settings_empty": {
+    "message": "このページに一致する保存条件はありません。"
+  },
+  "save_volume": {
+    "message": "音量設定を保存"
+  },
+  "save_rule": {
+    "message": "保存条件の入力"
+  },
+  "choose_scope": {
+    "message": "この音量をどの URL で使うか選びます。"
+  },
+  "save_scope": {
+    "message": "保存単位"
+  },
+  "scope_host": {
+    "message": "ホスト"
+  },
+  "scope_path": {
+    "message": "パス"
+  },
+  "scope_query": {
+    "message": "パス＋選択したクエリパラメータ"
+  },
+  "query_fields": {
+    "message": "照合するクエリパラメータ"
+  },
+  "choose_query_fields": {
+    "message": "1つ以上選んでください。選んだ項目がすべて一致すると適用できます。"
+  },
+  "save": {
+    "message": "この条件で保存"
+  },
+  "apply": {
+    "message": "適用"
+  },
+  "delete": {
+    "message": "削除"
+  },
+  "rule_volume": {
+    "message": "$SCOPE$：$VOLUME$",
+    "placeholders": {
+      "scope": {
+        "content": "$1"
+      },
+      "volume": {
+        "content": "$2"
+      }
+    }
+  },
+  "apply_rule": {
+    "message": "$RULE$ の $LABEL$ を適用",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "rule": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_rule": {
+    "message": "$RULE$ の保存条件を削除",
+    "placeholders": {
+      "rule": {
+        "content": "$1"
+      }
+    }
+  },
+  "unsupported": {
+    "message": "このページでは音量調整を利用できません。"
+  },
+  "page_changed_settings": {
+    "message": "ページが変わりました。保存設定を使うにはポップアップを開き直してください。"
+  },
+  "page_changed_adjustment": {
+    "message": "ページが変わりました。音量を調整するにはポップアップを開き直してください。"
+  },
+  "capture_starting": {
+    "message": "音声キャプチャを開始しています…"
+  },
+  "capture_conflict": {
+    "message": "このタブは別のキャプチャで使用中です。共有や録画を終了してから再試行してください。"
+  },
+  "apply_failed": {
+    "message": "音量を適用できませんでした。再試行するか、音量を選び直してください。"
+  },
+  "load_settings_failed": {
+    "message": "保存されている設定を読み込めませんでした。"
+  },
+  "duplicate_query": {
+    "message": "$NAME$（同名項目が複数）",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "query_match_detail": {
+    "message": "選んだ名前と値がすべて一致する場合に適用可能"
+  },
+  "no_query_fields": {
+    "message": "選べるクエリパラメータがありません"
+  },
+  "audio_no_response": {
+    "message": "音声処理から応答がありません。"
+  },
+  "applied_volume": {
+    "message": "音量を $VOLUME$ に適用しました",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "delete_failed": {
+    "message": "設定を削除できませんでした。"
+  },
+  "saved": {
+    "message": "保存しました"
+  },
+  "save_failed": {
+    "message": "設定を保存できませんでした。"
+  },
+  "set_volume": {
+    "message": "音量を $VOLUME$ にする",
+    "placeholders": {
+      "volume": {
+        "content": "$1"
+      }
+    }
+  },
+  "display_save_failed": {
+    "message": "表示設定を保存できませんでした。"
+  },
+  "open_settings_failed": {
+    "message": "設定一覧を開けませんでした。"
+  },
+  "audio_processing_ended": {
+    "message": "タブの音声処理が終了しました。"
+  },
+  "target_page_changed": {
+    "message": "対象のページが変わりました。"
+  },
+  "capture_ended": {
+    "message": "タブのキャプチャが終了しました。"
+  }
+}
