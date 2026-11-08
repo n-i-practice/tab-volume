@@ -11,7 +11,7 @@ main { max-width: 460px; margin: auto; }
 .caption { margin: 0 0 8px; color: #465570; font-size: 12px; }
 .panel { background: white; border: 1px solid #d7dfec; border-radius: 18px; box-shadow: 0 12px 36px #223a641c; overflow: hidden; }
 header, section { padding: 18px 20px; }
-header { background: #152643; color: white; }
+header { position: relative; background: #152643; color: white; }
 h1, h2, p { margin: 0; }
 h1 { font-size: 20px; }
 h2 { font-size: 16px; }
@@ -43,6 +43,26 @@ button { border: 1px solid #bccae0; background: white; color: #203458; border-ra
 button.primary { background: #255ac5; color: white; border-color: #255ac5; }
 button:disabled { opacity: .55; cursor: default; }
 select { border: 1px solid #bccae0; border-radius: 7px; padding: 4px; background: white; }
+header h1, header .tab { margin-right: 46px; }
+.options-toggle { position: absolute; top: 18px; right: 20px; list-style: none; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #8093b2; border-radius: 8px; cursor: pointer; }
+.options-toggle::-webkit-details-marker { display: none; }
+.options-toggle:hover, details[open] .options-toggle { background: #ffffff20; }
+.options-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.options-panel { margin-top: 12px; padding: 12px; border: 1px solid #8093b2; border-radius: 9px; }
+.options-panel label { display: block; }
+.options-panel select { display: block; width: 100%; margin: 4px 0 8px; }
+[data-theme="dark"] { color-scheme: dark; }
+[data-theme="dark"] body { background: #101827; color: #e5ecf9; }
+[data-theme="dark"] .panel { background: #192438; border-color: #445371; }
+[data-theme="dark"] header { background: #111c30; }
+[data-theme="dark"] section + section, [data-theme="dark"] .choice { border-color: #445371; }
+[data-theme="dark"] .muted, [data-theme="dark"] .caption, [data-theme="dark"] .volume-scale,
+[data-theme="dark"] .choice small, [data-theme="dark"] .choice:has(input:disabled) { color: #b6c5df; }
+[data-theme="dark"] output { color: #a9c6ff; }
+[data-theme="dark"] .preview, [data-theme="dark"] .saved,
+[data-theme="dark"] button, [data-theme="dark"] select { background: #24344f; color: #e5ecf9; border-color: #647796; }
+[data-theme="dark"] .choice:has(input:checked) { background: #263f65; border-color: #88a9e7; }
+[data-theme="dark"] button.primary { background: #a9c6ff; color: #122341; border-color: #a9c6ff; }
 .status { min-height: 19px; margin-top: 7px; }
 [hidden] { display: none !important; }
 </style>
@@ -53,14 +73,26 @@ select { border: 1px solid #bccae0; border-radius: 7px; padding: 4px; background
     <span>拡張ポップアップの画面イメージ</span>
     <label>サンプル <select id="sample"><option value="youtube">YouTube</option><option value="nico">ニコニコ動画</option></select></label>
   </div>
-  <div class="caption">
-    <label>目盛り <select id="tick-pattern">
-      <option value="50">長い目盛り 100% ／ 短い目盛り 50%</option>
-      <option value="10">長い目盛り 50% ／ 短い目盛り 10%</option>
-    </select></label>
-  </div>
   <article class="panel">
-    <header><h1>tab-volume</h1><p class="tab" id="address"></p></header>
+    <header>
+      <h1>tab-volume</h1>
+      <p class="tab" id="address"></p>
+      <details>
+        <summary class="options-toggle" aria-label="オプション" title="オプション">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+            <path d="m10 3-.5 2.2-1.6.9-2.2-.7-2 3.5 1.7 1.5v1.8l-1.7 1.5 2 3.5 2.2-.7 1.6.9.5 2.2h4l.5-2.2 1.6-.9 2.2.7 2-3.5-1.7-1.5v-1.8l1.7-1.5-2-3.5-2.2.7-1.6-.9L14 3z"/>
+            <circle cx="12" cy="11.3" r="2.6"/>
+          </svg>
+        </summary>
+        <div class="options-panel">
+          <label>目盛り <select id="tick-pattern">
+            <option value="50">長い目盛り 100% ／ 短い目盛り 50%</option>
+            <option value="10">長い目盛り 50% ／ 短い目盛り 10%</option>
+          </select></label>
+          <label><input type="checkbox" id="dark-mode"> ダークモード</label>
+        </div>
+      </details>
+    </header>
     <section aria-labelledby="volume-title">
       <div class="row"><h2 id="volume-title">このタブの音量</h2><output id="amount" for="volume">70%</output></div>
       <input id="volume" type="range" min="0" max="500" step="10" value="70" aria-labelledby="volume-title">
@@ -99,12 +131,42 @@ const records = new Map();
 const names = { host: 'ホスト', path: 'パス', query: 'パス＋選択したクエリパラメータ' };
 const volume = find('volume');
 const queryItems = find('query-items');
+const tickPattern = find('tick-pattern');
+const darkMode = find('dark-mode');
 let url;
 let candidate;
 
+function renderOptions() {
+  document.documentElement.dataset.theme = darkMode.checked ? 'dark' : 'light';
+  renderScale();
+}
+
+function loadOptions() {
+  try {
+    const options = JSON.parse(localStorage.getItem('tab-volume-mock-options'));
+    tickPattern.value = options?.tickPattern === '10' ? '10' : '50';
+    darkMode.checked = options?.darkMode === true;
+  } catch {
+    // The preview also works when browser storage is unavailable.
+  }
+  renderOptions();
+}
+
+function updateOptions() {
+  renderOptions();
+  try {
+    localStorage.setItem('tab-volume-mock-options', JSON.stringify({
+      tickPattern: tickPattern.value,
+      darkMode: darkMode.checked
+    }));
+  } catch {
+    // Keep the active options for the current preview.
+  }
+}
+
 function renderScale() {
   const scale = find('volume-scale');
-  const minorStep = Number(find('tick-pattern').value);
+  const minorStep = Number(tickPattern.value);
   const majorStep = minorStep === 10 ? 50 : 100;
   const max = Number(volume.max);
   scale.replaceChildren();
@@ -181,7 +243,8 @@ function loadSample() {
 
 let order = 0;
 find('sample').addEventListener('change', loadSample);
-find('tick-pattern').addEventListener('change', renderScale);
+tickPattern.addEventListener('change', updateOptions);
+darkMode.addEventListener('change', updateOptions);
 document.querySelectorAll('input[name="scope"]').forEach(input => input.addEventListener('change', render));
 queryItems.addEventListener('change', render);
 volume.addEventListener('input', render);
@@ -199,7 +262,7 @@ find('apply').addEventListener('click', () => {
   find('status').textContent = '保存値をこのタブの表示に適用しました';
   render();
 });
-renderScale();
+loadOptions();
 loadSample();
 </script>
 </body>
