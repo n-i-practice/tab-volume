@@ -59,6 +59,11 @@ header h1, header .tab { margin-right: 46px; }
 .options-panel { margin-top: 12px; padding: 12px; border: 1px solid #8093b2; border-radius: 9px; }
 .options-panel label { display: block; }
 .options-panel select { display: block; width: 100%; margin: 4px 0 8px; }
+.options-link { display: inline-block; margin-top: 10px; padding: 5px 9px; border: 1px solid #8093b2; border-radius: 8px; color: inherit; text-decoration: none; }
+.options-link:hover { background: #ffffff20; }
+.management { max-width: 720px; }
+.list-error { color: #9b3030; }
+.save-status.is-error { color: #9b3030; }
 .panel[data-theme="dark"] { color-scheme: dark; background: #192438; color: #e5ecf9; border-color: #445371; }
 [data-theme="dark"] header { background: #111c30; }
 [data-theme="dark"] section + section, [data-theme="dark"] .choice { border-color: #445371; }
@@ -70,12 +75,13 @@ header h1, header .tab { margin-right: 46px; }
 [data-theme="dark"] .choice:has(input:checked) { background: #263f65; border-color: #88a9e7; }
 [data-theme="dark"] button.primary { background: #a9c6ff; color: #122341; border-color: #a9c6ff; }
 [data-theme="dark"] .save-status { color: #88e3b0; }
+[data-theme="dark"] .list-error, [data-theme="dark"] .save-status.is-error { color: #ffb2b2; }
 [data-theme="dark"] .apply-check { background: #88e3b0; color: #102c22; }
 [hidden] { display: none !important; }
 </style>
 </head>
 <body>
-<main>
+<main id="popup-view">
   <div class="row caption">
     <span>拡張ポップアップの画面イメージ</span>
     <label>サンプル <select id="sample"><option value="youtube">YouTube</option><option value="nico">ニコニコ動画</option></select></label>
@@ -97,6 +103,7 @@ header h1, header .tab { margin-right: 46px; }
             <option value="10">細かめ（10%間隔）</option>
           </select></label>
           <label><input type="checkbox" id="dark-mode"> ダークモード</label>
+          <a class="options-link" href="#saved-settings" target="_blank" rel="noopener">保存されている設定一覧 <span aria-hidden="true">↗</span></a>
         </div>
       </details>
     </header>
@@ -129,6 +136,7 @@ header h1, header .tab { margin-right: 46px; }
         <h3>保存されている条件</h3>
         <p class="muted" id="saved-empty">このページに一致する保存条件はありません。</p>
         <ul class="saved-list" id="saved-list"></ul>
+        <p class="muted list-error" id="saved-error" role="status"></p>
       </div>
       <template id="saved-item">
         <li class="row saved">
@@ -145,13 +153,24 @@ header h1, header .tab { margin-right: 46px; }
     </section>
   </article>
 </main>
+<main id="settings-view" class="management" hidden>
+  <article class="panel">
+    <header><h1>保存されている設定一覧</h1><p class="tab">すべてのサイトの音量設定</p></header>
+    <section aria-label="保存されている設定">
+      <p class="muted" id="all-saved-empty">保存されている設定はありません。</p>
+      <ul class="saved-list" id="all-saved-list"></ul>
+      <p class="muted list-error" id="all-saved-error" role="status"></p>
+    </section>
+  </article>
+</main>
 <script>
 const samples = {
   youtube: 'https://www.youtube.com/watch?v=ABC123&t=30',
   nico: 'https://www.nicovideo.jp/watch/sm46647529'
 };
 const find = id => document.getElementById(id);
-const records = new Map();
+const recordPrefix = 'tab-volume-mock-rule:';
+const showAll = location.hash === '#saved-settings';
 const names = { host: 'ホスト', path: 'パス', query: 'パス＋選択したクエリパラメータ' };
 const volume = find('volume');
 const queryItems = find('query-items');
@@ -222,20 +241,36 @@ function render() {
   return rule;
 }
 
-function renderSaved() {
-  const matches = Array.from(records.entries()).filter(([, item]) =>
-    item.host === url.hostname && (!item.path || item.path === url.pathname) &&
+function matchesPage(item) {
+  return item.host === url.hostname && (!item.path || item.path === url.pathname) &&
     item.params.every(([name, value]) => {
       const values = url.searchParams.getAll(name);
       return values.length === 1 && values[0] === value;
-    })
-  ).sort(([, left], [, right]) =>
+    });
+}
+
+function renderSaved() {
+  const prefix = showAll ? 'all-saved' : 'saved';
+  const list = find(prefix + '-list');
+  const empty = find(prefix + '-empty');
+  const error = find(prefix + '-error');
+  list.replaceChildren();
+  error.textContent = '';
+  let records;
+  try {
+    records = Object.entries(localStorage).filter(([key]) => key.startsWith(recordPrefix))
+      .map(([key, value]) => [key, JSON.parse(value)]);
+  } catch {
+    empty.hidden = true;
+    error.textContent = '保存されている設定を読み込めませんでした。';
+    return;
+  }
+  const matches = records.filter(([, item]) => showAll || matchesPage(item)).sort(([, left], [, right]) =>
+    left.host.localeCompare(right.host) ||
     Object.keys(names).indexOf(left.scope) - Object.keys(names).indexOf(right.scope) ||
     right.params.length - left.params.length || right.order - left.order
   );
-  const list = find('saved-list');
-  list.replaceChildren();
-  find('saved-empty').hidden = matches.length > 0;
+  empty.hidden = matches.length > 0;
   for (const [key, item] of matches) {
     const row = find('saved-item').content.firstElementChild.cloneNode(true);
     const label = names[item.scope] + '：' + item.volume + '%';
@@ -244,6 +279,8 @@ function renderSaved() {
     row.querySelector('p').textContent = condition;
     const apply = row.querySelector('[data-action="apply"]');
     const check = row.querySelector('.apply-check');
+    apply.hidden = showAll;
+    check.hidden = showAll;
     let checkTimer;
     apply.setAttribute('aria-label', condition + ' の ' + label + ' を適用');
     apply.addEventListener('click', () => {
@@ -256,7 +293,12 @@ function renderSaved() {
     const remove = row.querySelector('[data-action="delete"]');
     remove.setAttribute('aria-label', condition + ' の保存条件を削除');
     remove.addEventListener('click', () => {
-      records.delete(key);
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        error.textContent = '設定を削除できませんでした。';
+        return;
+      }
       renderSaved();
     });
     list.append(row);
@@ -288,7 +330,6 @@ function loadSample() {
   renderSaved();
 }
 
-let order = 0;
 find('sample').addEventListener('change', loadSample);
 tickPattern.addEventListener('change', updateOptions);
 darkMode.addEventListener('change', updateOptions);
@@ -301,14 +342,33 @@ const saveStatus = find('save-status');
 find('save').addEventListener('click', () => {
   const rule = render();
   if (find('save').disabled) return;
-  records.set(JSON.stringify(rule), { ...rule, volume: Number(volume.value), order: ++order });
-  saveStatus.textContent = '保存しました';
   clearTimeout(saveTimer);
+  try {
+    localStorage.setItem(recordPrefix + JSON.stringify(rule), JSON.stringify({
+      ...rule, volume: Number(volume.value), order: Date.now()
+    }));
+  } catch {
+    saveStatus.classList.add('is-error');
+    saveStatus.textContent = '設定を保存できませんでした。';
+    return;
+  }
+  saveStatus.classList.remove('is-error');
+  saveStatus.textContent = '保存しました';
   saveTimer = setTimeout(() => { saveStatus.textContent = ''; }, 2000);
   renderSaved();
 });
-loadOptions();
-loadSample();
+window.addEventListener('storage', event => {
+  if (event.key === null || event.key.startsWith(recordPrefix)) renderSaved();
+});
+if (showAll) {
+  document.title = 'tab-volume | 保存されている設定一覧';
+  find('popup-view').hidden = true;
+  find('settings-view').hidden = false;
+  renderSaved();
+} else {
+  loadOptions();
+  loadSample();
+}
 </script>
 </body>
 </html>
