@@ -34,12 +34,14 @@ legend { margin-bottom: 5px; font-weight: 650; }
 .choice input { align-self: start; margin: 5px 0 0; }
 .choice small { display: block; overflow-wrap: anywhere; color: #4f5d75; }
 .query-item { display: block; overflow-wrap: anywhere; }
-.saved { padding: 9px 11px; border-radius: 9px; background: #f2f5fa; overflow-wrap: anywhere; }
+.saved { padding: 9px 11px; border: 1px solid transparent; border-radius: 9px; background: #f2f5fa; overflow-wrap: anywhere; }
 .saved-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
 .saved-copy { min-width: 0; }
 .saved-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 .saved-controls button { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; }
-.saved-active { color: #217849; font-weight: 700; }
+.saved-controls [data-action="apply"] { width: auto; padding: 0 10px; font-weight: 650; white-space: nowrap; }
+.saved.is-active { border-color: #21804d; }
+.saved-active { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #217849; color: white; font-weight: 800; }
 .actions { margin: 10px 0 0; }
 .saved-conditions { margin-top: 14px; }
 .saved-conditions h3 { margin: 0 0 4px; font-size: 14px; }
@@ -68,7 +70,8 @@ header h1, header .tab { margin-right: 46px; }
 [data-theme="dark"] button, [data-theme="dark"] select { background: #24344f; color: #e5ecf9; border-color: #647796; }
 [data-theme="dark"] .choice:has(input:checked) { background: #263f65; border-color: #88a9e7; }
 [data-theme="dark"] button.primary { background: #a9c6ff; color: #122341; border-color: #a9c6ff; }
-[data-theme="dark"] .saved-active { color: #88e3b0; }
+[data-theme="dark"] .saved.is-active { border-color: #88e3b0; }
+[data-theme="dark"] .saved-active { background: #88e3b0; color: #102c22; }
 .status { min-height: 19px; margin-top: 7px; }
 [hidden] { display: none !important; }
 </style>
@@ -132,9 +135,7 @@ header h1, header .tab { margin-right: 46px; }
           <div class="saved-copy"><strong></strong><p class="muted"></p></div>
           <div class="saved-controls">
             <span class="saved-active" role="img" aria-label="適用中" title="適用中" hidden>✓</span>
-            <button type="button" data-action="apply" title="適用">
-              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M5 2v12l9-6z"/></svg>
-            </button>
+            <button type="button" data-action="apply">適用</button>
             <button type="button" data-action="delete" title="削除">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h12M6 4V2h4v2m2 0-1 10H5L4 4m3 3v4m2-4v4"/></svg>
             </button>
@@ -243,7 +244,9 @@ function renderSaved() {
     const condition = ruleLabel(item);
     row.querySelector('strong').textContent = label;
     row.querySelector('p').textContent = condition;
-    row.querySelector('.saved-active').hidden = activeRuleKey !== key;
+    const isActive = activeRuleKey === key;
+    row.classList.toggle('is-active', isActive);
+    row.querySelector('.saved-active').hidden = !isActive;
     const apply = row.querySelector('[data-action="apply"]');
     apply.setAttribute('aria-label', condition + ' の ' + label + ' を適用');
     apply.addEventListener('click', () => {
