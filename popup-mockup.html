@@ -19,6 +19,9 @@ section + section { border-top: 1px solid #e2e8f2; }
 .tab { color: #c8d7ed; font-size: 12px; overflow-wrap: anywhere; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 input[type=range] { display: block; width: 100%; margin: 12px 0 4px; accent-color: #255ac5; }
+.volume-scale { position: relative; height: 22px; margin: 0 8px 8px; color: #4f5d75; font-size: 9px; font-variant-numeric: tabular-nums; }
+.volume-scale span { position: absolute; left: var(--position); transform: translateX(-50%); text-align: center; }
+.volume-scale span::before { content: ""; display: block; width: 1px; height: 4px; margin: 0 auto 2px; background: #8594ae; }
 input[type=radio], input[type=checkbox] { accent-color: #255ac5; }
 output { color: #1948a1; font-weight: 750; font-size: 23px; font-variant-numeric: tabular-nums; }
 .muted { color: #4f5d75; font-size: 12px; }
@@ -53,8 +56,21 @@ select { border: 1px solid #bccae0; border-radius: 7px; padding: 4px; background
     <header><h1>tab-volume</h1><p class="tab" id="address"></p></header>
     <section aria-labelledby="volume-title">
       <div class="row"><h2 id="volume-title">このタブの音量</h2><output id="amount" for="volume">70%</output></div>
-      <input id="volume" type="range" min="0" max="500" value="70" aria-labelledby="volume-title">
-      <div class="row muted"><span>0%</span><button id="reset" type="button">100% に戻す</button><span>500%</span></div>
+      <input id="volume" type="range" min="0" max="500" step="1" value="70" aria-labelledby="volume-title">
+      <div class="volume-scale" aria-hidden="true">
+        <span style="--position: 0%">0%</span>
+        <span style="--position: 10%">50%</span>
+        <span style="--position: 20%">100%</span>
+        <span style="--position: 30%">150%</span>
+        <span style="--position: 40%">200%</span>
+        <span style="--position: 50%">250%</span>
+        <span style="--position: 60%">300%</span>
+        <span style="--position: 70%">350%</span>
+        <span style="--position: 80%">400%</span>
+        <span style="--position: 90%">450%</span>
+        <span style="--position: 100%">500%</span>
+      </div>
+      <button id="reset" type="button">100% に戻す</button>
       <p id="boost-note" class="muted" hidden>100% を超えると、音源によって音が歪むことがあります。</p>
     </section>
     <section aria-labelledby="save-title">
