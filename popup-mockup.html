@@ -34,10 +34,15 @@ legend { margin-bottom: 5px; font-weight: 650; }
 .choice input { align-self: start; margin: 5px 0 0; }
 .choice small { display: block; overflow-wrap: anywhere; color: #4f5d75; }
 .query-item { display: block; overflow-wrap: anywhere; }
-.preview, .saved { padding: 9px 11px; border-radius: 9px; background: #f2f5fa; overflow-wrap: anywhere; }
-.preview code { display: block; font-size: 12px; }
+.saved { padding: 9px 11px; border-radius: 9px; background: #f2f5fa; overflow-wrap: anywhere; }
+.saved-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.saved-copy { min-width: 0; }
+.saved-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.saved-controls button { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; }
+.saved-active { color: #217849; font-weight: 700; }
 .actions { margin: 10px 0 0; }
-.saved { margin-top: 12px; }
+.saved-conditions { margin-top: 14px; }
+.saved-conditions h3 { margin: 0 0 4px; font-size: 14px; }
 button, select { font: inherit; }
 button { border: 1px solid #bccae0; background: white; color: #203458; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
 button.primary { background: #255ac5; color: white; border-color: #255ac5; }
@@ -59,10 +64,11 @@ header h1, header .tab { margin-right: 46px; }
 [data-theme="dark"] .muted, [data-theme="dark"] .caption, [data-theme="dark"] .volume-scale,
 [data-theme="dark"] .choice small, [data-theme="dark"] .choice:has(input:disabled) { color: #b6c5df; }
 [data-theme="dark"] output { color: #a9c6ff; }
-[data-theme="dark"] .preview, [data-theme="dark"] .saved,
+[data-theme="dark"] .saved,
 [data-theme="dark"] button, [data-theme="dark"] select { background: #24344f; color: #e5ecf9; border-color: #647796; }
 [data-theme="dark"] .choice:has(input:checked) { background: #263f65; border-color: #88a9e7; }
 [data-theme="dark"] button.primary { background: #a9c6ff; color: #122341; border-color: #a9c6ff; }
+[data-theme="dark"] .saved-active { color: #88e3b0; }
 .status { min-height: 19px; margin-top: 7px; }
 [hidden] { display: none !important; }
 </style>
@@ -112,12 +118,29 @@ header h1, header .tab { margin-right: 46px; }
       </fieldset>
       <fieldset id="queries" hidden>
         <legend>照合するクエリパラメータ</legend>
-        <p class="muted">選んだ項目がすべて一致すると適用できます。</p>
+        <p class="muted">1つ以上選んでください。選んだ項目がすべて一致すると適用できます。</p>
         <div id="query-items"></div>
       </fieldset>
-      <div class="preview"><span class="muted">保存する条件</span><code id="preview" aria-live="polite"></code></div>
-      <div class="row actions"><span class="muted">保存音量 <strong id="save-amount">70%</strong></span><button class="primary" id="save" type="button">この条件で保存</button></div>
-      <div class="row saved" id="candidate" hidden><div><strong id="candidate-value"></strong><p class="muted" id="candidate-rule"></p></div><button id="apply" type="button">適用</button></div>
+      <div class="actions"><button class="primary" id="save" type="button">この条件で保存</button></div>
+      <div class="saved-conditions">
+        <h3>保存されている条件</h3>
+        <p class="muted" id="saved-empty">このページに一致する保存条件はありません。</p>
+        <ul class="saved-list" id="saved-list"></ul>
+      </div>
+      <template id="saved-item">
+        <li class="row saved">
+          <div class="saved-copy"><strong></strong><p class="muted"></p></div>
+          <div class="saved-controls">
+            <span class="saved-active" role="img" aria-label="適用中" title="適用中" hidden>✓</span>
+            <button type="button" data-action="apply" title="適用">
+              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M5 2v12l9-6z"/></svg>
+            </button>
+            <button type="button" data-action="delete" title="削除">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h12M6 4V2h4v2m2 0-1 10H5L4 4m3 3v4m2-4v4"/></svg>
+            </button>
+          </div>
+        </li>
+      </template>
       <p class="muted status" id="status" role="status"></p>
     </section>
   </article>
@@ -135,7 +158,7 @@ const queryItems = find('query-items');
 const tickPattern = find('tick-pattern');
 const darkMode = find('dark-mode');
 let url;
-let candidate;
+let activeRuleKey;
 
 function renderOptions() {
   document.documentElement.dataset.theme = darkMode.checked ? 'dark' : 'light';
@@ -195,29 +218,55 @@ function render() {
   const valid = scope !== 'query' || params.length > 0;
   find('queries').hidden = scope !== 'query';
   find('save').disabled = !valid;
-  find('preview').textContent = valid ? ruleLabel(rule) : 'クエリパラメータを1つ以上選んでください';
   find('amount').value = volume.value + '%';
-  find('save-amount').textContent = volume.value + '%';
   find('boost-note').hidden = Number(volume.value) <= 100;
-  candidate = Array.from(records.values()).filter(item =>
+  return rule;
+}
+
+function renderSaved() {
+  const matches = Array.from(records.entries()).filter(([, item]) =>
     item.host === url.hostname && (!item.path || item.path === url.pathname) &&
     item.params.every(([name, value]) => {
       const values = url.searchParams.getAll(name);
       return values.length === 1 && values[0] === value;
     })
-  ).sort((left, right) =>
+  ).sort(([, left], [, right]) =>
     Object.keys(names).indexOf(right.scope) - Object.keys(names).indexOf(left.scope) ||
     right.params.length - left.params.length || right.order - left.order
-  )[0];
-  find('candidate').hidden = !candidate;
-  if (candidate) {
-    find('candidate-value').textContent = '保存値 ' + candidate.volume + '%（' + names[candidate.scope] + '）';
-    find('candidate-rule').textContent = ruleLabel(candidate);
+  );
+  const list = find('saved-list');
+  list.replaceChildren();
+  find('saved-empty').hidden = matches.length > 0;
+  for (const [key, item] of matches) {
+    const row = find('saved-item').content.firstElementChild.cloneNode(true);
+    const label = names[item.scope] + '：' + item.volume + '%';
+    const condition = ruleLabel(item);
+    row.querySelector('strong').textContent = label;
+    row.querySelector('p').textContent = condition;
+    row.querySelector('.saved-active').hidden = activeRuleKey !== key;
+    const apply = row.querySelector('[data-action="apply"]');
+    apply.setAttribute('aria-label', condition + ' の ' + label + ' を適用');
+    apply.addEventListener('click', () => {
+      activeRuleKey = key;
+      volume.value = item.volume;
+      find('status').textContent = label + ' を適用しました';
+      render();
+      renderSaved();
+    });
+    const remove = row.querySelector('[data-action="delete"]');
+    remove.setAttribute('aria-label', condition + ' の保存条件を削除');
+    remove.addEventListener('click', () => {
+      records.delete(key);
+      if (activeRuleKey === key) activeRuleKey = undefined;
+      find('status').textContent = '保存条件を削除しました';
+      renderSaved();
+    });
+    list.append(row);
   }
-  return rule;
 }
 
 function loadSample() {
+  activeRuleKey = undefined;
   url = new URL(samples[find('sample').value]);
   find('address').textContent = url.href;
   find('host-detail').textContent = url.hostname;
@@ -240,6 +289,7 @@ function loadSample() {
   find('query-detail').textContent = hasChoices ? '選んだ名前と値がすべて一致する場合に適用可能' : '選べるクエリパラメータがありません';
   find('status').textContent = '';
   render();
+  renderSaved();
 }
 
 let order = 0;
@@ -248,20 +298,22 @@ tickPattern.addEventListener('change', updateOptions);
 darkMode.addEventListener('change', updateOptions);
 document.querySelectorAll('input[name="scope"]').forEach(input => input.addEventListener('change', render));
 queryItems.addEventListener('change', render);
-volume.addEventListener('input', render);
-find('reset').addEventListener('click', () => { volume.value = 100; render(); });
+function updateVolumeManually() {
+  const hadActiveRule = activeRuleKey !== undefined;
+  activeRuleKey = undefined;
+  find('status').textContent = '';
+  render();
+  if (hadActiveRule) renderSaved();
+}
+
+volume.addEventListener('input', updateVolumeManually);
+find('reset').addEventListener('click', () => { volume.value = 100; updateVolumeManually(); });
 find('save').addEventListener('click', () => {
   const rule = render();
   if (find('save').disabled) return;
   records.set(JSON.stringify(rule), { ...rule, volume: Number(volume.value), order: ++order });
   find('status').textContent = names[rule.scope] + '単位で保存しました（プレビュー内）';
-  render();
-});
-find('apply').addEventListener('click', () => {
-  if (!candidate) return;
-  volume.value = candidate.volume;
-  find('status').textContent = '保存値をこのタブの表示に適用しました';
-  render();
+  renderSaved();
 });
 loadOptions();
 loadSample();
