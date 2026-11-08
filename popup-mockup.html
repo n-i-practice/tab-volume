@@ -40,7 +40,9 @@ legend { margin-bottom: 5px; font-weight: 650; }
 .saved-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 .saved-controls button { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; }
 .saved-controls [data-action="apply"] { width: auto; padding: 0 10px; font-weight: 650; white-space: nowrap; }
-.actions { margin: 10px 0 0; }
+.actions { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; }
+.apply-check { width: 14px; text-align: center; color: #217849; font-weight: 750; visibility: hidden; }
+.apply-check.is-visible { visibility: visible; }
 .saved-conditions { margin-top: 14px; }
 .saved-conditions h3 { margin: 0 0 4px; font-size: 14px; }
 button, select { font: inherit; }
@@ -68,7 +70,7 @@ header h1, header .tab { margin-right: 46px; }
 [data-theme="dark"] button, [data-theme="dark"] select { background: #24344f; color: #e5ecf9; border-color: #647796; }
 [data-theme="dark"] .choice:has(input:checked) { background: #263f65; border-color: #88a9e7; }
 [data-theme="dark"] button.primary { background: #a9c6ff; color: #122341; border-color: #a9c6ff; }
-.status { min-height: 19px; margin-top: 7px; }
+[data-theme="dark"] .apply-check { color: #88e3b0; }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -120,7 +122,10 @@ header h1, header .tab { margin-right: 46px; }
         <p class="muted">1つ以上選んでください。選んだ項目がすべて一致すると適用できます。</p>
         <div id="query-items"></div>
       </fieldset>
-      <div class="actions"><button class="primary" id="save" type="button">この条件で保存</button></div>
+      <div class="actions">
+        <button class="primary" id="save" type="button">この条件で保存</button>
+        <span class="muted" id="save-status" role="status"></span>
+      </div>
       <div class="saved-conditions">
         <h3>保存されている条件</h3>
         <p class="muted" id="saved-empty">このページに一致する保存条件はありません。</p>
@@ -130,6 +135,7 @@ header h1, header .tab { margin-right: 46px; }
         <li class="row saved">
           <div class="saved-copy"><strong></strong><p class="muted"></p></div>
           <div class="saved-controls">
+            <span class="apply-check" aria-hidden="true">✓</span>
             <button type="button" data-action="apply">適用</button>
             <button type="button" data-action="delete" title="削除">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h12M6 4V2h4v2m2 0-1 10H5L4 4m3 3v4m2-4v4"/></svg>
@@ -137,7 +143,6 @@ header h1, header .tab { margin-right: 46px; }
           </div>
         </li>
       </template>
-      <p class="muted status" id="status" role="status"></p>
     </section>
   </article>
 </main>
@@ -226,7 +231,7 @@ function renderSaved() {
       return values.length === 1 && values[0] === value;
     })
   ).sort(([, left], [, right]) =>
-    Object.keys(names).indexOf(right.scope) - Object.keys(names).indexOf(left.scope) ||
+    Object.keys(names).indexOf(left.scope) - Object.keys(names).indexOf(right.scope) ||
     right.params.length - left.params.length || right.order - left.order
   );
   const list = find('saved-list');
@@ -239,16 +244,20 @@ function renderSaved() {
     row.querySelector('strong').textContent = label;
     row.querySelector('p').textContent = condition;
     const apply = row.querySelector('[data-action="apply"]');
+    const check = row.querySelector('.apply-check');
+    let checkTimer;
     apply.setAttribute('aria-label', condition + ' の ' + label + ' を適用');
     apply.addEventListener('click', () => {
       volume.value = item.volume;
-      updateVolume();
+      render();
+      check.classList.add('is-visible');
+      clearTimeout(checkTimer);
+      checkTimer = setTimeout(() => check.classList.remove('is-visible'), 1000);
     });
     const remove = row.querySelector('[data-action="delete"]');
     remove.setAttribute('aria-label', condition + ' の保存条件を削除');
     remove.addEventListener('click', () => {
       records.delete(key);
-      find('status').textContent = '保存条件を削除しました';
       renderSaved();
     });
     list.append(row);
@@ -276,7 +285,6 @@ function loadSample() {
   const hasChoices = Boolean(queryItems.querySelector('input:not(:disabled)'));
   document.querySelector('[value="query"]').disabled = !hasChoices;
   find('query-detail').textContent = hasChoices ? '選んだ名前と値がすべて一致する場合に適用可能' : '選べるクエリパラメータがありません';
-  find('status').textContent = '';
   render();
   renderSaved();
 }
@@ -287,18 +295,17 @@ tickPattern.addEventListener('change', updateOptions);
 darkMode.addEventListener('change', updateOptions);
 document.querySelectorAll('input[name="scope"]').forEach(input => input.addEventListener('change', render));
 queryItems.addEventListener('change', render);
-function updateVolume() {
-  find('status').textContent = '';
-  render();
-}
-
-volume.addEventListener('input', updateVolume);
-find('reset').addEventListener('click', () => { volume.value = 100; updateVolume(); });
+volume.addEventListener('input', render);
+find('reset').addEventListener('click', () => { volume.value = 100; render(); });
+let saveTimer;
+const saveStatus = find('save-status');
 find('save').addEventListener('click', () => {
   const rule = render();
   if (find('save').disabled) return;
   records.set(JSON.stringify(rule), { ...rule, volume: Number(volume.value), order: ++order });
-  find('status').textContent = names[rule.scope] + '単位で保存しました（プレビュー内）';
+  saveStatus.textContent = '保存しました';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveStatus.textContent = ''; }, 2000);
   renderSaved();
 });
 loadOptions();
