@@ -1,0 +1,35 @@
+import { deletePreset, presetsChanged, readPresets, renderPresets } from './presets.js';
+
+const list = document.getElementById('all-saved-list');
+const empty = document.getElementById('all-saved-empty');
+const error = document.getElementById('all-saved-error');
+let version = 0;
+
+async function refresh() {
+  const current = ++version;
+  try {
+    const records = await readPresets();
+    if (current !== version) return;
+    error.textContent = '';
+    empty.hidden = records.length > 0;
+    renderPresets(list, records, remove);
+  } catch {
+    if (current !== version) return;
+    list.replaceChildren();
+    empty.hidden = true;
+    error.textContent = '保存されている設定を読み込めませんでした。';
+  }
+}
+
+async function remove(record) {
+  try {
+    await deletePreset(record.key);
+  } catch {
+    error.textContent = '設定を削除できませんでした。';
+  }
+}
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && presetsChanged(changes)) void refresh();
+});
+void refresh();

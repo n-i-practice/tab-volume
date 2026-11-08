@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "tab-volume",
+  "description": "Chrome のタブごとに音量を調整し、サイトやページごとに設定を保存します。",
+  "version": "1.0.0",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab", "tabCapture", "offscreen", "storage"],
+  "action": { "default_popup": "popup.html" },
+  "background": { "service_worker": "worker.js", "type": "module" },
+  "options_ui": { "page": "options.html", "open_in_tab": true }
+}
