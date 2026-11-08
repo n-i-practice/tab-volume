@@ -17,9 +17,6 @@
   "language": {
     "message": "显示语言"
   },
-  "language_auto": {
-    "message": "自动"
-  },
   "language_change_failed": {
     "message": "无法更改显示语言。"
   },

@@ -17,9 +17,6 @@
   "language": {
     "message": "प्रदर्शन की भाषा"
   },
-  "language_auto": {
-    "message": "स्वचालित"
-  },
   "language_change_failed": {
     "message": "प्रदर्शन की भाषा नहीं बदली जा सकी।"
   },

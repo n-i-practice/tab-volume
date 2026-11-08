@@ -2,8 +2,10 @@ export const languageKey = 'display:language';
 
 const supportedLanguages = ['ja', 'en', 'hi', 'zh_CN'];
 const catalogs = new Map();
+const browserLanguage = chrome.i18n.getMessage('page_language') || 'en';
+const browserPreference = browserLanguage.replace('-', '_');
 let catalog;
-let language = chrome.i18n.getMessage('page_language');
+let language = browserLanguage;
 let percent = volumeFormatter(language);
 let languageRequest = 0;
 
@@ -21,24 +23,30 @@ function volumeFormatter(locale) {
   return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 });
 }
 
+export function resolveLanguage(preference) {
+  if (supportedLanguages.includes(preference)) return preference;
+  return supportedLanguages.includes(browserPreference) ? browserPreference : 'en';
+}
+
 export async function selectLanguage(preference) {
   const request = ++languageRequest;
-  if (!supportedLanguages.includes(preference)) {
+  const selected = resolveLanguage(preference);
+  if (selected === browserPreference) {
     catalog = undefined;
-    language = chrome.i18n.getMessage('page_language');
+    language = browserLanguage;
     percent = volumeFormatter(language);
-    return 'auto';
+    return selected;
   }
-  if (!catalogs.has(preference)) {
-    const response = await fetch(chrome.runtime.getURL('_locales/' + preference + '/messages.json'));
-    if (!response.ok) throw new Error('Could not load locale: ' + preference);
-    catalogs.set(preference, await response.json());
+  if (!catalogs.has(selected)) {
+    const response = await fetch(chrome.runtime.getURL('_locales/' + selected + '/messages.json'));
+    if (!response.ok) throw new Error('Could not load locale: ' + selected);
+    catalogs.set(selected, await response.json());
   }
   if (request !== languageRequest) return null;
-  catalog = catalogs.get(preference);
+  catalog = catalogs.get(selected);
   language = catalog.page_language.message;
   percent = volumeFormatter(language);
-  return preference;
+  return selected;
 }
 
 export function formatVolume(volume) {

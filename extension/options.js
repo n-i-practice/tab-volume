@@ -46,4 +46,4 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 chrome.storage.local.get(languageKey)
   .then(values => applyLanguage(values[languageKey]))
-  .catch(() => applyLanguage('auto'));
+  .catch(() => applyLanguage());

@@ -1,9 +1,20 @@
-import { message } from './i18n.js';
+import { languageKey, message, resolveLanguage } from './i18n.js';
 import { defaultState, pageUrl, validVolume } from './tab-state.js';
 
 const offscreenPath = 'offscreen.html';
 const pending = new Map();
 let opening;
+
+chrome.runtime.onInstalled.addListener(async () => {
+  try {
+    const values = await chrome.storage.local.get(languageKey);
+    const current = values[languageKey];
+    const selected = resolveLanguage(current);
+    if (selected !== current) await chrome.storage.local.set({ [languageKey]: selected });
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 async function hasOffscreen() {
   const contexts = await chrome.runtime.getContexts({

@@ -25,7 +25,7 @@ let rulesVersion = 0;
 let pageVersion = 0;
 let saveTimer;
 let announcementTimer;
-let languagePreference = 'auto';
+let languagePreference;
 
 function formRule() {
   if (!url) return null;
@@ -376,7 +376,7 @@ async function initialize() {
     const values = await chrome.storage.local.get(languageKey);
     await applyLanguage(values[languageKey]);
   } catch {
-    await applyLanguage('auto');
+    await applyLanguage();
     find('language-status').textContent = message('language_change_failed');
   }
   languageSelect.disabled = false;
