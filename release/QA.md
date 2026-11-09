@@ -15,9 +15,16 @@ Windows の Chrome 157.0.8103.38 の一時プロファイルで確認した。
 - 同一オリジン内で再読み込みなしに URL を変えると、ポップアップの照合結果が更新される。調整中の音量は URL 変更だけでは変わらない。
 - 別タブは 100% から始まる。ブラウザーを終了して同じプロファイルで開き直すと、音量ルール、言語、ダークモード、目盛りが残り、保存値を再度適用できる。
 - ポップアップを日本語、英語、ヒンディー語、簡体字中国語に切り替えて表示した。掲載用 PNG は各 1280×800、小型プロモ画像は 440×280。いずれも RGB 8 bit。
+- Ko-fi ボタンは画像抽出拡張と同じ URL を使っている。外部からの自動確認には HTTP 403 が返ったが、利用者のブラウザーでは支援ページが正常に開いた。
 
 ## 残っている確認
 
 - Chrome for Testing 116.0.5845.96 で読み込みと必要な拡張 API の存在を確認した。実際にツールバーから開いた場合のキャプチャ開始・保存・適用は未確認。自動操作で対象ウィンドウを取得できず、再試行時も `window id … no longer belongs to Chrome; current owner is Chrome` が返った。
 - 音質と映像同期の聴き比べ、4言語のキーボード操作、既存インストールからの更新は未完了。
-- Ko-fi ボタンに画像抽出拡張と同じ URL が設定されていることを確認した。外部からの自動確認には HTTP 403 が返り、リンク先の表示は未確認。
+
+## Chrome 116 の手動確認
+
+1. Chrome for Testing 116.0.5845.96 を、普段の Chrome とは別の `--user-data-dir` で起動する。`chrome://version` でバージョンが 116 であることを確認する。 [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing)
+2. `chrome://extensions` でデベロッパーモードをオンにし、提出用 ZIP を展開した `manifest.json` のあるフォルダーを読み込む。パズルアイコンから tab-volume をピン留めする。 [展開した拡張機能の読み込み](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked)
+3. [W3C のテスト動画](https://www.w3.org/2010/05/video/mediaevents.html) を開き、動画の音が出る状態にする。ツールバーの tab-volume をクリックし、表示が 100% であることを確認してから 50% に下げる。音が小さくなればキャプチャ開始は成功。
+4. 「音量設定を保存」を開き、保存単位を「ホスト」にして保存する。同じ動画を別タブで再生し、初期値が 100% であることと、「適用」を押すと 50% に変わることを確認する。
