@@ -18,7 +18,7 @@ Adjust the playback volume of individual Chrome tabs and let users save and manu
 - **Remote code** — Select **No**. The scripts and translation files are bundled with the extension. The Ko-fi button opens a separate site when clicked.
 - **Web history** — The extension reads the active tab's URL when invoked. When a user saves a rule, it stores the selected URL components in `chrome.storage.local`.
 - **Website content** — The extension processes the active tab's audio in memory when the user adjusts its volume or mutes it. Audio and saved rules stay on the device.
-- **Privacy policy URL** — Enter the public URL for the published [privacy policy](PRIVACY.md).
+- **Privacy policy URL** — Enter the [published bilingual privacy policy URL](https://github.com/n-i-practice/tab-volume/blob/main/release/PRIVACY.md).
 
 Use the data categories above when reviewing the dashboard's current wording. Chrome Web Store requires disclosure of data handled locally. [Privacy fields](https://developer.chrome.com/docs/webstore/cws-dashboard-privacy) · [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq#3-does-an-extension-need-to-disclose-user-data-handling-if-the-data-is-only-processed-or-stored-locally-on-a-users-device)
 

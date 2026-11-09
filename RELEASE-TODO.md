@@ -27,7 +27,8 @@ Chrome ウェブストアでの初回公開を対象とする。現行のリリ�
 ## 3. プライバシーと審査資料
 
 - [x] **プライバシーポリシー案を作成する。** [日本語と英語の文案](release/PRIVACY.md)
-- [ ] **プライバシーポリシーを公開し、URL を登録する。** 公開 URL がログインなしで閲覧できることを確認する。 [Chrome ウェブストアのプライバシーポリシー要件](https://developer.chrome.com/docs/webstore/program-policies/policies#privacy_policy)
+- [x] **プライバシーポリシーを公開する。** GitHub で日英の本文を公開し、ログインなしで閲覧できることを確認した。 [公開ポリシー](https://github.com/n-i-practice/tab-volume/blob/main/release/PRIVACY.md)
+- [ ] **ストアにプライバシーポリシーの URL を登録する。** ダッシュボードの「プライバシー」に公開 URL を入力する。 [Chrome ウェブストアのプライバシーポリシー要件](https://developer.chrome.com/docs/webstore/program-policies/policies#privacy_policy)
 - [ ] **ダッシュボードのプライバシー欄を記入する。** 単一の目的はタブごとの音量調整とその設定管理。実装、掲載文、ポリシーと一致するよう、各権限の用途、ローカル保存、外部送信の有無、リモートコードの利用有無を申告する。 [プライバシー欄の入力](https://developer.chrome.com/docs/webstore/cws-dashboard-privacy)
   - `activeTab` は拡張を開いた対象タブの URL を読み、保存条件を照合する。
   - `tabCapture` は操作されたタブの音声を取り込む。
@@ -47,7 +48,7 @@ Chrome ウェブストアでの初回公開を対象とする。現行のリリ�
 ## 公開アカウントで行う手順
 
 1. **ログイン。** Image Extractor と同じ公開名義を使う場合は、その開発者アカウントでダッシュボードにログインする。アカウント画面で公開名と連絡用メールを確認する。登録・支払いは、新しい開発者アカウントを使う場合に行う。 [開発者ダッシュボード](https://chrome.google.com/webstore/devconsole/) · [アカウント設定](https://developer.chrome.com/docs/webstore/set-up-account)
-2. **ポリシーを公開。** [プライバシーポリシー](release/PRIVACY.md) をログイン不要の HTTPS ページに置く。GitHub を使う場合は、公開の文書用リポジトリを作り、この Markdown ファイルを追加する。ファイルのページ URL をシークレットウィンドウで開き、本文を読めることを確認する。 [GitHub のリポジトリ作成手順](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+2. **ポリシーの公開 URL を確認。** ダッシュボードに入力する URL は GitHub の日英ポリシーページを使う。 [公開ポリシー](https://github.com/n-i-practice/tab-volume/blob/main/release/PRIVACY.md)
 3. **ストアの下書きを作成。** ダッシュボードで「新しいアイテムを追加」から `tab-volume-1.0.0.zip` をアップロードする。「ストアの掲載情報」に [4言語の説明](release/STORE-LISTING.md) と [画像](release/images/) を登録する。「プライバシー」には [申告案](release/REVIEW.md#privacy-practices) と公開したポリシー URL を入力し、データ利用の確認項目を確認する。「配布」では無料・一般公開と対象地域を設定する。「テスト手順」には [審査用手順](release/REVIEW.md#test-instructions) を入れる。標準サポートハブを使う場合は、アカウントの項目サポートで公開設定を確認する。 [ストア提出手順](https://developer.chrome.com/docs/webstore/publish/#fill-out-information-about-your-item) · [サポート設定](https://developer.chrome.com/docs/webstore/support-users#the-support-hub)
 4. **審査に提出して手動で公開。** 「審査に提出」で自動公開のチェックを外す。承認されたら掲載情報と連絡先を確認し、ステータス画面に表示された期限までに「公開」を押す。公開ページでインストールとサポート・ポリシーへのリンクを確認する。 [手動公開の手順](https://developer.chrome.com/docs/webstore/publish/#deferred-publishing-option)
 
