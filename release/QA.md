@@ -72,6 +72,8 @@ Chrome のトレースでは、タブ音声取り込みの内部遅延が 20 ms�
 
 別の1試行で、100% の再生中にトラックを停止して通常経路へ戻した。映像に対する音声の遅れは通常再生の約 33 ms からキャプチャ中は約 110 ms になり、停止後は約 35 ms に戻った。戻す際に約 20 ms のほぼ無音の区間があった。
 
+同じ Chrome と動画を使った比較では、参考拡張の Volume Master 2.4.0 でも 100% に戻した後に約 75〜85 ms の追加遅延があった。 [参考拡張との比較](../reference-tab-volume.md#100-に戻した後の音声の遅れ)
+
 ## Chrome 116 の手動確認
 
 1. Chrome for Testing 116.0.5845.96 を、普段の Chrome とは別の `--user-data-dir` で起動する。`chrome://version` でバージョンが 116 であることを確認する。 [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing)
