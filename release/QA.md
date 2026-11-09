@@ -57,6 +57,21 @@ Windows で提出用 ZIP を読み込み、Chrome 157.0.8103.38 と Chrome for T
 
 計測にはテスト信号とブラウザーが報告する映像時刻を使った。実際の動画を使った聴き比べ、出力機器ごとの視聴感、Windows 以外の OS は未確認。
 
+### 遅延の切り分け
+
+Windows の Chrome 157.0.8103.38 で、同じステレオ動画を使って再計測した。提出用 ZIP の一時コピーで `AudioContext` の設定やゲインの接続だけを変え、同じ試行内の通常再生を基準に、キャプチャ経由の 100% で増えた音声の遅れを比較した。
+
+| 条件 | 回数 | `baseLatency` | 通常再生から増えた遅れ |
+| --- | ---: | ---: | ---: |
+| 現行の `new AudioContext()` | 3 | 10 ms | 約 81〜85 ms |
+| `latencyHint: 0` | 3 | 10 ms | 約 77〜89 ms |
+| `GainNode` を経由せず Web Audio の出力に直結 | 3 | 10 ms | 約 80〜83 ms |
+| `latencyHint: 'playback'`（検出用の対照） | 1 | 20 ms | 約 104 ms |
+
+Chrome のトレースでは、タブ音声取り込みの内部遅延が 20 ms、Web Audio への受け渡し時の待ち時間が安定区間で約 9〜21 ms だった。この環境では出力バッファの最小値は 480 フレーム（48 kHz で 10 ms）だった。ブラウザー内の各値は異なる区間を測っており、表の遅れは映像との比較から求めた。既定の `interactive` と `latencyHint: 0` は同じ出力バッファになり、ゲインを外しても遅れは残った。 [Chromium の取り込みバッファ](https://github.com/chromium/chromium/blob/157.0.8103.38/services/audio/loopback_signal_provider.cc#L47-L70) · [Web Audio の遅延設定](https://www.w3.org/TR/webaudio-1.0/#dom-audiocontextoptions-latencyhint)
+
+別の1試行で、100% の再生中にトラックを停止して通常経路へ戻した。映像に対する音声の遅れは通常再生の約 33 ms からキャプチャ中は約 110 ms になり、停止後は約 35 ms に戻った。戻す際に約 20 ms のほぼ無音の区間があった。
+
 ## Chrome 116 の手動確認
 
 1. Chrome for Testing 116.0.5845.96 を、普段の Chrome とは別の `--user-data-dir` で起動する。`chrome://version` でバージョンが 116 であることを確認する。 [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing)
