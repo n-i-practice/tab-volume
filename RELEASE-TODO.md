@@ -33,6 +33,7 @@ Chrome ウェブストアでの初回公開を対象とする。現行のリリ�
   - `offscreen` はポップアップを閉じた後も音声処理を続ける。
   - `storage` は表示設定と保存した音量条件を保持する。
 - [x] **審査用の操作手順と入力案を用意する。** 提出候補のコードと公式ガイドに照らして、端末内で扱うデータとリモートコードの有無を入力案に整理した。 [審査用入力案](release/REVIEW.md)
+- [x] **更新版 ZIP で審査手順を通す。** Chrome 157 で W3C の公開動画を使い、音量調整から別タブでの適用、通常再生への復帰、保存条件の削除まで確認した。 [更新版の再確認](release/QA.md#更新版-zip-の再確認)
 
 ## 4. パッケージ化と公開
 
@@ -41,5 +42,12 @@ Chrome ウェブストアでの初回公開を対象とする。現行のリリ�
 - [ ] **審査に提出する。** ZIP をアップロードし、カテゴリ、公開範囲、配布地域、掲載文と画像、プライバシー情報を最終確認する。審査通過後に公開時期を決められるよう、初回は手動公開を選ぶ。 [公開と審査の手順](https://developer.chrome.com/docs/webstore/publish/)
 - [ ] **公開する。** 審査承認後、公開ページのプレビューと連絡先を確認し、公開操作を行う。公開 URL、バージョン、提出 ZIP に対応するコミットを記録する。
 - [ ] **公開直後に確認する。** 別プロファイルからストア経由でインストールし、初期言語、音量調整、保存と手動適用を確認する。
+
+## 公開アカウントで行う手順
+
+1. **ログイン。** Image Extractor と同じ公開名義を使う場合は、その開発者アカウントでダッシュボードにログインする。アカウント画面で公開名と連絡用メールを確認する。登録・支払いは、新しい開発者アカウントを使う場合に行う。 [開発者ダッシュボード](https://chrome.google.com/webstore/devconsole/) · [アカウント設定](https://developer.chrome.com/docs/webstore/set-up-account)
+2. **ポリシーを公開。** [プライバシーポリシー](release/PRIVACY.md) をログイン不要の HTTPS ページに置く。GitHub を使う場合は、公開の文書用リポジトリを作り、この Markdown ファイルを追加する。ファイルのページ URL をシークレットウィンドウで開き、本文を読めることを確認する。 [GitHub のリポジトリ作成手順](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+3. **ストアの下書きを作成。** ダッシュボードで「新しいアイテムを追加」から `tab-volume-1.0.0.zip` をアップロードする。「ストアの掲載情報」に [4言語の説明](release/STORE-LISTING.md) と [画像](release/images/) を登録する。「プライバシー」には [申告案](release/REVIEW.md#privacy-practices) と公開したポリシー URL を入力し、データ利用の確認項目を確認する。「配布」では無料・一般公開と対象地域を設定する。「テスト手順」には [審査用手順](release/REVIEW.md#test-instructions) を入れる。標準サポートハブを使う場合は、アカウントの項目サポートで公開設定を確認する。 [ストア提出手順](https://developer.chrome.com/docs/webstore/publish/#fill-out-information-about-your-item) · [サポート設定](https://developer.chrome.com/docs/webstore/support-users#the-support-hub)
+4. **審査に提出して手動で公開。** 「審査に提出」で自動公開のチェックを外す。承認されたら掲載情報と連絡先を確認し、ステータス画面に表示された期限までに「公開」を押す。公開ページでインストールとサポート・ポリシーへのリンクを確認する。 [手動公開の手順](https://developer.chrome.com/docs/webstore/publish/#deferred-publishing-option)
 
 追加の収益化は、公開後の地域別・言語別の利用実績と問い合わせを見て検討する。 [ストアの利用指標](https://developer.chrome.com/docs/webstore/metrics)

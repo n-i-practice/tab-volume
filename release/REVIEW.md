@@ -26,8 +26,9 @@ Use the data categories above when reviewing the dashboard's current wording. Ch
 
 No login or test account is required.
 
-1. Open the [W3C HTML5 Video Events and API demo](https://www.w3.org/2010/05/video/mediaevents.html). Select **Bunny trailer** and press **play()**. Keep the video player's own volume unchanged during the test.
+1. Open the [W3C HTML5 Video Events and API demo](https://www.w3.org/2010/05/video/mediaevents.html). Select **Sintel teaser** and press **play()**. Keep the video player's own volume unchanged during the test.
 2. Click the tab-volume toolbar icon. Set **Tab volume** to 50%. Click **Mute** and **Unmute**. The popup should still show 50% after unmuting.
 3. Expand **Save volume setting**, select **Host**, and click **Save with this rule**. The popup lists the saved 50% rule.
 4. Open the same demo in a new tab and start playback. Open tab-volume and click **Apply** beside the saved rule. Verify the tab volume changes from 100% to 50%.
-5. In the popup, open the gear menu and select **Saved settings**. Use the trash icon to delete the test rule. Reopen the popup on the demo page and check that the rule is gone.
+5. Click **Reset to 100%**. The popup should show 100%, and the tab should return to normal Chrome playback.
+6. In the popup, open the gear menu and select **Saved settings**. Use the trash icon to delete the test rule. Reopen the popup on the demo page and check that the rule is gone.
