@@ -18,7 +18,8 @@ Chrome ウェブストアでの初回公開を対象とする。現行のリリ�
 - [ ] **公開アカウントを確認する。** 必要なら開発者アカウントを登録して登録料を支払い、公開する開発者名と確認済みメールアドレスを用意する。 [開発者登録](https://developer.chrome.com/docs/webstore/register) · [アカウント設定](https://developer.chrome.com/docs/webstore/set-up-account)
 - [x] **4言語の掲載文を用意する。** [掲載文案](release/STORE-LISTING.md)
 - [x] **掲載画像を用意する。** [アイコン](extension/icons/icon-128.png)、実際の拡張から撮った [4言語のスクリーンショット](release/images/)、[小型プロモ画像](release/images/promo-small.png) を作成した。 [掲載画像のガイド](https://developer.chrome.com/docs/webstore/images)
-- [ ] **問い合わせ窓口を決める。** ストアのサポート欄に案内を掲載し、公開後にレビューと不具合報告を確認できる状態にする。 [掲載情報のサポート欄](https://developer.chrome.com/docs/webstore/cws-dashboard-listing#provide_a_support_url)
+- [x] **問い合わせ窓口の方針を決める。** 初回公開では、プライバシーポリシーの案内に合わせて Chrome ウェブストア標準のサポートハブを使う。 [ユーザーサポートの設定方法](https://developer.chrome.com/docs/webstore/support-users#the-support-hub)
+- [ ] **サポートハブの公開設定を確認する。** 開発者アカウントの項目サポートを有効にし、公開後に掲載ページから開けることを確認する。
 
 ## 3. プライバシーと審査資料
 
@@ -29,7 +30,7 @@ Chrome ウェブストアでの初回公開を対象とする。現行のリリ�
   - `tabCapture` は操作されたタブの音声を取り込む。
   - `offscreen` はポップアップを閉じた後も音声処理を続ける。
   - `storage` は表示設定と保存した音量条件を保持する。
-- [x] **審査用の操作手順と入力案を用意する。** [単一目的、権限の用途、操作手順](release/REVIEW.md)
+- [x] **審査用の操作手順と入力案を用意する。** 提出候補のコードと公式ガイドに照らして、端末内で扱うデータとリモートコードの有無を入力案に整理した。 [審査用入力案](release/REVIEW.md)
 
 ## 4. パッケージ化と公開
 

@@ -13,7 +13,14 @@ Adjust the playback volume of individual Chrome tabs and let users save and manu
 | `offscreen` | Run Web Audio for the captured stream and continue playback after the popup is closed. |
 | `storage` | Save user-created volume rules and display preferences in the browser profile. |
 
-The extension executes its bundled code. It processes tab audio on-device and stores the URL components of rules the user chooses to save in `chrome.storage.local`. Enter disclosures in the dashboard based on this local handling. The optional Ko-fi link opens a separate site on user click. [Privacy fields](https://developer.chrome.com/docs/webstore/cws-dashboard-privacy)
+## Privacy practices
+
+- **Remote code** — Select **No**. The scripts and translation files are bundled with the extension. The Ko-fi button opens a separate site when clicked.
+- **Web history** — The extension reads the active tab's URL when invoked. When a user saves a rule, it stores the selected URL components in `chrome.storage.local`.
+- **Website content** — The extension processes the active tab's audio in memory when the user adjusts its volume or mutes it. Audio and saved rules stay on the device.
+- **Privacy policy URL** — Enter the public URL for the published [privacy policy](PRIVACY.md).
+
+Use the data categories above when reviewing the dashboard's current wording. Chrome Web Store requires disclosure of data handled locally. [Privacy fields](https://developer.chrome.com/docs/webstore/cws-dashboard-privacy) · [User Data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq#3-does-an-extension-need-to-disclose-user-data-handling-if-the-data-is-only-processed-or-stored-locally-on-a-users-device)
 
 ## Test instructions
 
