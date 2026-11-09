@@ -1,7 +1,7 @@
 import { formatVolume, message } from './i18n.js';
+import { ruleKey, rulePrefix } from './rules.js';
 import { validVolume } from './tab-state.js';
 
-const prefix = 'volume-rule:';
 const scopes = ['host', 'path', 'query'];
 const scopeLabels = {
   host: 'scope_host',
@@ -9,29 +9,13 @@ const scopeLabels = {
   query: 'scope_query'
 };
 
-export function createRule(url, scope, names) {
-  const params = scope === 'query'
-    ? [...names].sort().map(name => [name, url.searchParams.get(name)])
-    : [];
-  return { scope, host: url.hostname, path: scope === 'host' ? '' : url.pathname, params };
-}
-
-export function matchesRule(rule, url) {
-  return !!url && rule.host === url.hostname &&
-    (rule.scope === 'host' || rule.path === url.pathname) &&
-    rule.params.every(([name, value]) => {
-      const values = url.searchParams.getAll(name);
-      return values.length === 1 && values[0] === value;
-    });
-}
-
 export async function readPresets() {
   const stored = await chrome.storage.local.get(null);
   const records = [];
   for (const [key, value] of Object.entries(stored)) {
-    if (!key.startsWith(prefix) || !validVolume(value?.volume)) continue;
+    if (!key.startsWith(rulePrefix) || !validVolume(value?.volume)) continue;
     try {
-      const [scope, host, path, params] = JSON.parse(key.slice(prefix.length));
+      const [scope, host, path, params] = JSON.parse(key.slice(rulePrefix.length));
       if (!scopes.includes(scope) || typeof host !== 'string' || typeof path !== 'string' ||
           !Array.isArray(params) || !params.every(pair => Array.isArray(pair) &&
             pair.length === 2 && pair.every(part => typeof part === 'string'))) continue;
@@ -48,8 +32,7 @@ export async function readPresets() {
 }
 
 export function savePreset(rule, volume) {
-  const key = prefix + JSON.stringify([rule.scope, rule.host, rule.path, rule.params]);
-  return chrome.storage.local.set({ [key]: { volume, savedAt: Date.now() } });
+  return chrome.storage.local.set({ [ruleKey(rule)]: { volume, savedAt: Date.now() } });
 }
 
 export function deletePreset(key) {
@@ -57,7 +40,7 @@ export function deletePreset(key) {
 }
 
 export function presetsChanged(changes) {
-  return Object.keys(changes).some(key => key.startsWith(prefix));
+  return Object.keys(changes).some(key => key.startsWith(rulePrefix));
 }
 
 function ruleLabel({ host, path, params }) {

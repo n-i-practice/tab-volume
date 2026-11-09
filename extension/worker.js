@@ -1,5 +1,5 @@
 import { languageKey, message, resolveLanguage } from './i18n.js';
-import { defaultState, pageUrl, validVolume } from './tab-state.js';
+import { captureUrl, defaultState, validVolume } from './tab-state.js';
 
 const offscreenPath = 'offscreen.html';
 const pending = new Map();
@@ -55,8 +55,9 @@ async function runChanges(tabId, change) {
       state = await offscreen('set', tabId, { settings: requested });
       if (!state.active) throw new Error(message('audio_processing_ended'));
     } else if (requested.muted || requested.volume !== 100) {
+      const targetUrl = captureUrl(requested.url);
       const tab = await chrome.tabs.get(tabId);
-      if (!pageUrl(tab.url) || tab.url !== requested.url) {
+      if (!targetUrl || captureUrl(tab.url) !== targetUrl) {
         throw new Error(message('target_page_changed'));
       }
       if (!hasDocument) {
@@ -66,7 +67,7 @@ async function runChanges(tabId, change) {
       if (change.requested !== requested) continue;
       const streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tabId });
       const current = await chrome.tabs.get(tabId);
-      if (current.url !== requested.url) throw new Error(message('target_page_changed'));
+      if (captureUrl(current.url) !== targetUrl) throw new Error(message('target_page_changed'));
       // A newer slider value may arrive while getUserMedia is opening the stream.
       state = await offscreen('start', tabId, { streamId, settings: change.requested });
     }

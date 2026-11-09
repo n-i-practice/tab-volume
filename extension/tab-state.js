@@ -11,3 +11,10 @@ export function pageUrl(value) {
     (url.hostname === 'chrome.google.com' && /^\/webstore(?:\/|$)/.test(url.pathname));
   return (url.protocol === 'http:' || url.protocol === 'https:') && !webStore ? url : null;
 }
+
+export function captureUrl(value) {
+  const url = pageUrl(value);
+  if (!url) return null;
+  url.hash = '';
+  return url.href;
+}

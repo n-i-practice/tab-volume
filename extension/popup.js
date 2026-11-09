@@ -1,6 +1,7 @@
 import { formatVolume, languageKey, localizePage, message, selectLanguage } from './i18n.js';
 import { defaultState, pageUrl } from './tab-state.js';
-import { createRule, deletePreset, matchesRule, presetsChanged, readPresets, renderPresets, savePreset } from './presets.js';
+import { deletePreset, presetsChanged, readPresets, renderPresets, savePreset } from './presets.js';
+import { createRule, matchesRule } from './rules.js';
 
 const find = id => document.getElementById(id);
 const slider = find('volume');
