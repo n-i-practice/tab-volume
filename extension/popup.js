@@ -36,11 +36,12 @@ function formRule() {
 }
 
 function render() {
-  const state = requested ?? confirmed;
+  const state = requested?.settings ?? confirmed;
   const supported = pageMode === 'supported';
   const canAdjust = supported || (pageMode === 'lost' && confirmed.active);
   const locked = !canAdjust || failure?.conflict === true;
-  const starting = requested && !confirmed.active && (requested.muted || requested.volume !== 100);
+  const resetting = requested?.action === 'reset';
+  const starting = requested && !confirmed.active && (state.muted || state.volume !== 100);
   const notice = {
     loading: 'checking_tab',
     unsupported: 'unsupported',
@@ -56,9 +57,9 @@ function render() {
   slider.value = state.volume;
   slider.setAttribute('aria-valuetext', volumeText);
   find('amount').value = canAdjust ? volumeText : '—';
-  find('volume-slider').disabled = locked || state.muted;
+  find('volume-slider').disabled = locked || resetting || state.muted;
   find('reset').disabled = locked;
-  mute.disabled = locked;
+  mute.disabled = locked || resetting;
   mute.classList.toggle('is-muted', state.muted);
   find('mute-label').textContent = message(state.muted ? 'unmute' : 'mute');
   find('boost-note').hidden = !canAdjust || state.volume <= 100;
@@ -175,18 +176,19 @@ function announceApplied(check, volume) {
   }, 100);
 }
 
-async function changeAudio(volume, muted, preset) {
+async function changeAudio(volume, muted, { preset, action = 'set' } = {}) {
   const settings = { volume, muted, url: url?.href ?? null };
-  requested = settings;
+  const request = { settings, action };
+  requested = request;
   failure = undefined;
   render();
 
   let conflict = false;
   try {
     const result = await chrome.runtime.sendMessage({
-      receiver: 'worker', action: 'set', tabId, settings
+      receiver: 'worker', action, tabId, settings
     });
-    if (requested !== settings) return;
+    if (requested !== request) return;
     if (!result?.state) {
       conflict = result?.conflict === true;
       throw new Error(result?.error ?? message('audio_no_response'));
@@ -194,14 +196,14 @@ async function changeAudio(volume, muted, preset) {
     confirmed = result.state;
     if (preset && url?.href === settings.url) announceApplied(preset.check, confirmed.volume);
   } catch (error) {
-    if (requested !== settings) return;
+    if (requested !== request) return;
     console.error(error);
     const latest = await readAudio().catch(() => confirmed);
-    if (requested !== settings) return;
+    if (requested !== request) return;
     confirmed = latest;
-    if (url?.href === settings.url) failure = { settings, preset, conflict };
+    if (url?.href === settings.url) failure = { settings, preset, conflict, action };
   } finally {
-    if (requested === settings) {
+    if (requested === request) {
       requested = undefined;
       render();
     }
@@ -209,13 +211,13 @@ async function changeAudio(volume, muted, preset) {
 }
 
 function setVolume(volume) {
-  return changeAudio(volume, (requested ?? confirmed).muted);
+  return changeAudio(volume, (requested?.settings ?? confirmed).muted);
 }
 
 async function applyRule(record, check) {
   const current = await refreshPage();
   if (!matchesRule(record, current) || requested || failure) return;
-  await changeAudio(record.volume, confirmed.muted, { record, check });
+  await changeAudio(record.volume, confirmed.muted, { preset: { record, check } });
 }
 
 async function retry() {
@@ -225,7 +227,7 @@ async function retry() {
   if (failure !== failed || !current) return;
   if (failed.settings.url !== current.href) return;
   if (failed.preset && !matchesRule(failed.preset.record, current)) return;
-  await changeAudio(failed.settings.volume, failed.settings.muted, failed.preset);
+  await changeAudio(failed.settings.volume, failed.settings.muted, { preset: failed.preset, action: failed.action });
 }
 
 async function removeRule(record) {
@@ -329,9 +331,9 @@ languageSelect.addEventListener('change', async () => {
 });
 
 slider.addEventListener('input', () => setVolume(Number(slider.value)));
-find('reset').addEventListener('click', () => setVolume(100));
+find('reset').addEventListener('click', () => changeAudio(100, false, { action: 'reset' }));
 mute.addEventListener('click', () => {
-  const state = requested ?? confirmed;
+  const state = requested?.settings ?? confirmed;
   void changeAudio(state.volume, !state.muted);
 });
 find('retry').addEventListener('click', retry);

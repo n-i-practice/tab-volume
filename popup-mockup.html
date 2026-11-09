@@ -322,6 +322,8 @@ function render() {
   find('queries').hidden = scope !== 'query';
   find('save').disabled = !valid || captureState !== 'ready';
   find('volume-slider').disabled = muted || captureBlocked();
+  mute.classList.toggle('is-muted', muted);
+  find('mute-label').textContent = muted ? 'ミュート解除' : 'ミュート';
   const showVolume = captureState !== 'unsupported' && captureState !== 'access-lost-idle';
   find('amount').value = showVolume ? volume.value + '%' : '—';
   volume.setAttribute('aria-valuetext', volume.value + '%');
@@ -462,11 +464,15 @@ function changeVolume() {
   render();
 }
 volume.addEventListener('input', changeVolume);
-find('reset').addEventListener('click', () => { volume.value = 100; changeVolume(); });
+find('reset').addEventListener('click', () => {
+  clearTimeout(retryTimer);
+  volume.value = 100;
+  muted = false;
+  captureExample.value = captureState === 'access-lost-active' ? 'access-lost-idle' : 'ready';
+  renderCaptureState();
+});
 mute.addEventListener('click', () => {
   muted = !muted;
-  mute.classList.toggle('is-muted', muted);
-  find('mute-label').textContent = muted ? 'ミュート解除' : 'ミュート';
   changeVolume();
 });
 let saveTimer;

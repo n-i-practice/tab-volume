@@ -76,15 +76,31 @@ async function runChanges(tabId, change) {
 
 function changeVolume(tabId, settings) {
   const current = pending.get(tabId);
+  if (current?.reset) return current.result.then(() => changeVolume(tabId, settings));
   if (current) {
     current.requested = settings;
     return current.result;
   }
 
   const change = { requested: settings };
-  change.result = runChanges(tabId, change).finally(() => pending.delete(tabId));
+  change.result = runChanges(tabId, change).finally(() => {
+    if (pending.get(tabId) === change) pending.delete(tabId);
+  });
   pending.set(tabId, change);
   return change.result;
+}
+
+function resetVolume(tabId) {
+  const current = pending.get(tabId);
+  if (current?.reset) return current.result;
+
+  const reset = { reset: true };
+  reset.result = (async () => {
+    await current?.result.catch(() => {});
+    return await hasOffscreen() ? offscreen('stop', tabId) : defaultState;
+  })().finally(() => pending.delete(tabId));
+  pending.set(tabId, reset);
+  return reset.result;
 }
 
 async function getStatus(tabId) {
@@ -96,10 +112,22 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
   if (message.receiver !== 'worker' || sender.url !== chrome.runtime.getURL('popup.html')) return;
   const { action, tabId, settings } = message;
   if (!Number.isInteger(tabId) || tabId < 0) return;
-  if (action !== 'status' && action !== 'set') return;
-  if (action === 'set' && (!validVolume(settings?.volume) || typeof settings.muted !== 'boolean')) return;
 
-  const operation = action === 'set' ? changeVolume(tabId, settings) : getStatus(tabId);
+  let operation;
+  switch (action) {
+    case 'set':
+      if (!validVolume(settings?.volume) || typeof settings.muted !== 'boolean') return;
+      operation = changeVolume(tabId, settings);
+      break;
+    case 'reset':
+      operation = resetVolume(tabId);
+      break;
+    case 'status':
+      operation = getStatus(tabId);
+      break;
+    default:
+      return;
+  }
   operation.then(state => respond({ state }), error => respond({
     error: error.message,
     conflict: /active stream|already captur/i.test(error.message)
