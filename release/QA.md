@@ -2,8 +2,8 @@
 
 ## ZIP
 
-- ファイル名は `tab-volume-1.0.0.zip`。キャプチャ開始時の URL 比較を修正した `427f50d` の `extension/` から作成した。
-- SHA-256 は `0AF261BA6A0E604997190D3F42CFAEE68616D383C40C30C211DB7C3D530974B8`。
+- ファイル名は `tab-volume-1.0.0.zip`。スピーカーと音波のアイコンを反映した `7a58ba3` の `extension/` から作成した。
+- SHA-256 は `8CCB840D02DAF0616FDF6F1D4D8704F97C576D5184942C9A5750D55F5EABB73A`。
 - ZIP の直下に `manifest.json` があり、翻訳・アイコン・Ko-fi の画像を含む23ファイルを確認した。対応コミットと SHA-256 は ZIP と同名の JSON でも確認できる。
 
 ### 再作成とテスト
@@ -11,6 +11,11 @@
 リポジトリのルートで `node --test` を実行する。テストには Node.js 22.7 以降を使う。
 
 Python 3.10 以降で `python scripts/package_extension.py --ref HEAD` を実行すると、指定コミットの `extension/` だけを `dist/` に ZIP 化する。ZIP の隣の JSON にソースコミットと SHA-256 を記録する。保存先は `--output-dir` で変更できる。
+
+## アイコンと掲載画像の確認
+
+- 16 px のアイコンを明るい背景と暗い背景で表示し、スピーカーと2本の音波を確認した。128 px のストア用 PNG は絵柄が 96×96 px、四辺に16 pxの透明余白がある。ZIP ではマニフェストが参照する5サイズの PNG を照合した。 [アイコン原版](tab-volume-icon.svg) · [Chrome ウェブストアの画像要件](https://developer.chrome.com/docs/webstore/images#extension-icon)
+- Windows の Chrome 157 で実際のポップアップを開き、70% の保存済みルールを表示して4言語の掲載画像を作り直した。掲載画像4枚は 1280×800 px、小型プロモ画像は 440×280 px で、いずれも RGB 8 bit。
 
 ## URL 変更時の回帰確認
 
